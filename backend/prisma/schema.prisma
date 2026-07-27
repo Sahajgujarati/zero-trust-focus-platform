@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Room {
+  id        String   @id @default(uuid())
+  name      String
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id])
+  score     Int      @default(100)
+  isFocused Boolean  @default(true)
+  logs      Log[]
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  url       String
+  isFocused Boolean
+  timestamp DateTime @default(now())
+}

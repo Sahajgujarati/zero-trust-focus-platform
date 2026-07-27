@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zero-Trust Focus</title>
+  <style>
+    body {
+      width: 250px;
+      padding: 15px;
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 8px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h3 style="margin:0;">Zero-Trust Focus</h3>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="text" id="roomId" placeholder="Room ID" />
+    <button id="connectBtn">Connect to Session</button>
+    <div id="status">Status: Disconnected</div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
