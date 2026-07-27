@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:4000');
+const socket = io('https://zero-trust-focus-platform-1.onrender.com');
 
 function App() {
   const [roomId, setRoomId] = useState('');
@@ -35,7 +35,7 @@ function App() {
   };
 
   const createRoom = async () => {
-    const res = await fetch('http://localhost:4000/api/rooms', {
+    const res = await fetch('https://zero-trust-focus-platform-1.onrender.com/api/rooms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: 'My Focus Room' })

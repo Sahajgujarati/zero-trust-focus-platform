@@ -51,7 +51,7 @@ async function handleTabChange(url) {
 
   // Send to backend via REST API (which then broadcasts to Socket.io frontend)
   try {
-    const response = await fetch('http://localhost:4000/api/activity', {
+    const response = await fetch('https://zero-trust-focus-platform-1.onrender.com/api/activity', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
