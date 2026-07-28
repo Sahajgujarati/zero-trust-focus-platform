@@ -4,7 +4,7 @@ A real-time productivity monitoring ecosystem utilizing a microservices pipeline
 
 ## Demo
 
-https://github.com/user-attachments/assets/71451c5f-af39-41d2-92bd-ff2141546fa0
+https://github.com/user-attachments/assets/a6da98ae-c3d2-4499-9273-bd120c0d44ff
 
 ## Architecture
 
