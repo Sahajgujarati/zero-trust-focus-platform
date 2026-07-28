@@ -2,6 +2,12 @@
 
 A real-time productivity monitoring ecosystem utilizing a microservices pipeline to classify active tab browsing behavior against dynamic focus categorizations.
 
+## Demo
+
+<video src="./Screen%20Recording%202026-07-28%20231842.mp4" controls="controls" width="100%">
+  Your browser does not support the video tag.
+</video>
+
 ## Architecture
 
 This project has been designed with simplicity in mind so that you can run it immediately without complex environment setups (like Postgres or Redis). 
