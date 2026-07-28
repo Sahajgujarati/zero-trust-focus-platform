@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import './App.css';
 
 const socket = io('https://zero-trust-focus-platform-1.onrender.com');
 
@@ -44,97 +45,161 @@ function App() {
     setRoomId(data.id);
   };
 
+  const getScoreLevel = (score) => {
+    if (score > 80) return 'high';
+    if (score > 50) return 'medium';
+    return 'low';
+  };
+
+  // ─── Login Screen ───
   if (!joined) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white font-sans p-4">
-        <div className="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-md w-full border border-gray-700">
-          <h1 className="text-3xl font-bold mb-6 text-center text-blue-400">Zero-Trust Focus</h1>
-          <div className="space-y-4">
-            <input 
-              type="text" 
-              placeholder="Username" 
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
-            />
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                placeholder="Room ID" 
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+      <>
+        <div className="app-bg">
+          <div className="orb orb-1" />
+          <div className="orb orb-2" />
+          <div className="orb orb-3" />
+        </div>
+        <div className="app-content login-page">
+          <div className="login-card">
+            <div className="login-header">
+              <div className="login-shield">🛡️</div>
+              <h1 className="login-title">Zero-Trust Focus</h1>
+              <p className="login-subtitle">Real-time Productivity Monitor</p>
+            </div>
+
+            <div className="form-group">
+              <input
+                id="username-input"
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="input-field"
+                onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
               />
-              <button 
-                onClick={createRoom}
-                className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap"
+
+              <div className="input-row">
+                <input
+                  id="room-id-input"
+                  type="text"
+                  placeholder="Room ID"
+                  value={roomId}
+                  onChange={(e) => setRoomId(e.target.value)}
+                  className="input-field"
+                  onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+                />
+                <button
+                  id="create-room-btn"
+                  onClick={createRoom}
+                  className="btn btn-secondary"
+                >
+                  New
+                </button>
+              </div>
+
+              <button
+                id="join-session-btn"
+                onClick={handleJoin}
+                className="btn btn-primary"
               >
-                New
+                Join Session
               </button>
             </div>
-            <button 
-              onClick={handleJoin}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-[1.02]"
-            >
-              Join Session
-            </button>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
+  // ─── Dashboard ───
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-blue-400">Live Focus Dashboard</h1>
-            <p className="text-gray-400 mt-1">Room ID: <span className="font-mono text-gray-300 bg-gray-800 px-2 py-1 rounded">{roomId}</span></p>
+    <>
+      <div className="app-bg">
+        <div className="orb orb-1" />
+        <div className="orb orb-2" />
+      </div>
+      <div className="app-content dashboard">
+        {/* Header */}
+        <header className="dash-header">
+          <div className="dash-header-inner">
+            <div className="dash-brand">
+              <div className="dash-shield">🛡️</div>
+              <div className="dash-title-group">
+                <h1 className="dash-title">Live Focus Dashboard</h1>
+                <div className="dash-room-id">
+                  Room <code>{roomId}</code>
+                </div>
+              </div>
+            </div>
+            <div className="dash-user-badge">
+              <span className="status-dot" />
+              {username}
+            </div>
           </div>
-          <div className="text-xl font-medium bg-gray-800 px-4 py-2 rounded-lg border border-gray-700">
-            {username}
-          </div>
-        </div>
+        </header>
 
         {/* Alerts */}
-        <div className="fixed top-4 right-4 z-50 space-y-2">
+        <div className="alerts-container">
           {alerts.map((alert, i) => (
-            <div key={i} className="bg-red-500/90 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce border border-red-400 font-medium">
-              ⚠️ {alert}
+            <div key={i} className="alert-toast">
+              <span className="alert-icon">⚠️</span>
+              {alert}
             </div>
           ))}
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {roomData?.users?.map(user => (
-            <div key={user.id} className={`bg-gray-800 rounded-xl p-6 shadow-lg border-2 transition-all ${user.isFocused ? 'border-green-500/50 hover:border-green-400' : 'border-red-500/80 animate-pulse'}`}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold">{user.username}</h3>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.isFocused ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                  {user.isFocused ? 'FOCUSED' : 'DISTRACTED'}
-                </span>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>Productivity Score</span>
-                  <span className="font-bold text-white">{user.score}</span>
+        {/* Body */}
+        <main className="dash-body">
+          <div className="dash-section-label">Team Members</div>
+          <div className="users-grid">
+            {roomData?.users?.map((user, index) => (
+              <div
+                key={user.id}
+                className={`user-card ${user.isFocused ? 'focused' : 'distracted'}`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="card-header">
+                  <h3 className="card-username">{user.username}</h3>
+                  <span className={`card-status-badge ${user.isFocused ? 'focused' : 'distracted'}`}>
+                    {user.isFocused ? '● Focused' : '● Distracted'}
+                  </span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                  <div className={`h-2.5 rounded-full transition-all duration-500 ${user.score > 80 ? 'bg-green-500' : user.score > 50 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${user.score}%` }}></div>
+                <div className="card-score-section">
+                  <div className="card-score-header">
+                    <span className="card-score-label">Productivity Score</span>
+                    <span className={`card-score-value ${getScoreLevel(user.score)}`}>
+                      {user.score}
+                    </span>
+                  </div>
+                  <div className="score-bar-track">
+                    <div
+                      className={`score-bar-fill ${getScoreLevel(user.score)}`}
+                      style={{ width: `${user.score}%` }}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        
-        {(!roomData || !roomData.users || roomData.users.length === 0) && (
-          <div className="text-center py-20 text-gray-500">
-            Waiting for users to join...
+            ))}
           </div>
-        )}
+
+          {/* Empty State */}
+          {(!roomData || !roomData.users || roomData.users.length === 0) && (
+            <div className="empty-state">
+              <div className="radar-container">
+                <div className="radar-ring radar-ring-1" />
+                <div className="radar-ring radar-ring-2" />
+                <div className="radar-ring radar-ring-3" />
+                <div className="radar-sweep" />
+                <div className="radar-center-dot" />
+              </div>
+              <p className="empty-state-text">Scanning for team members…</p>
+              <p className="empty-state-subtext">Share the Room ID to get started</p>
+            </div>
+          )}
+        </main>
       </div>
-    </div>
+    </>
   );
 }
 
