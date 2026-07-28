@@ -4,7 +4,7 @@ A real-time productivity monitoring ecosystem utilizing a microservices pipeline
 
 ## Demo
 
-https://github.com/Sahajgujarati/zero-trust-focus-platform/raw/main/Screen%20Recording%202026-07-28%20231842.mp4
+https://github.com/user-attachments/assets/71451c5f-af39-41d2-92bd-ff2141546fa0
 
 ## Architecture
 
