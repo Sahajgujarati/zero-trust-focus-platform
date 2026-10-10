@@ -5,7 +5,6 @@ A real-time productivity monitoring ecosystem utilizing a microservices pipeline
 ## Demo
 
 https://github.com/user-attachments/assets/a6da98ae-c3d2-4499-9273-bd120c0d44ff
-
 ## Architecture
 
 This project has been designed with simplicity in mind so that you can run it immediately without complex environment setups (like Postgres or Redis). 

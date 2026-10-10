@@ -38,3 +38,6 @@ __pycache__/
 .venv/
 venv/
 env/
+
+# Database files
+backend/db.json
