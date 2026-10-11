@@ -3859,3 +3859,109 @@ html.light .sagu-pill-sep {
   }
 }
 
+/* ===============================================================
+   SAGU CINEMATIC INTRO VIDEO OVERLAY
+   =============================================================== */
+.sagu-intro-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s ease;
+}
+
+.sagu-intro-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sagu-intro-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sagu-intro-bottom-bar {
+  position: fixed;
+  bottom: 2rem;
+  right: 2.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 1000000;
+}
+
+.sagu-intro-mute-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(10, 14, 26, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #d4d4d8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sagu-intro-mute-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  transform: scale(1.06);
+}
+
+.sagu-intro-skip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 1.4rem;
+  background: rgba(10, 14, 26, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(78, 222, 163, 0.45);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(78, 222, 163, 0.2);
+  border-radius: 9999px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sagu-intro-skip-btn:hover {
+  background: rgba(78, 222, 163, 0.2);
+  border-color: #4edea3;
+  color: #4edea3;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 30px rgba(78, 222, 163, 0.4);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.sagu-intro-skip-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media (max-width: 640px) {
+  .sagu-intro-bottom-bar {
+    bottom: 1.25rem;
+    right: 1.25rem;
+  }
+  .sagu-intro-skip-btn {
+    padding: 0.55rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+

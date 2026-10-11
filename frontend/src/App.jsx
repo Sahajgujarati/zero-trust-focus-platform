@@ -60,6 +60,81 @@ function App() {
     return localStorage.getItem('sagu_theme') || 'dark';
   });
 
+  // Cinematic Intro state
+  const introVideoRef = useRef(null);
+  const [showIntro, setShowIntro] = useState(true);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [isIntroMuted, setIsIntroMuted] = useState(false);
+
+  useEffect(() => {
+    if (showIntro && introVideoRef.current) {
+      introVideoRef.current.play().catch(() => {
+        // Fallback to muted if browser blocks unmuted autoplay
+        if (introVideoRef.current) {
+          introVideoRef.current.muted = true;
+          setIsIntroMuted(true);
+          introVideoRef.current.play().catch(() => {});
+        }
+      });
+    }
+  }, [showIntro]);
+
+  const handleSkipIntro = () => {
+    setIsFadingOut(true);
+    setTimeout(() => {
+      setShowIntro(false);
+    }, 500);
+  };
+
+  const renderCinematicIntro = () => {
+    if (!showIntro) return null;
+    return (
+      <div className={`sagu-intro-overlay ${isFadingOut ? 'fade-out' : ''}`}>
+        <video
+          ref={introVideoRef}
+          className="sagu-intro-video"
+          src="/Saguintro.mp4"
+          autoPlay
+          playsInline
+          muted={isIntroMuted}
+          onEnded={handleSkipIntro}
+        />
+        <div className="sagu-intro-bottom-bar">
+          <button
+            className="sagu-intro-mute-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (introVideoRef.current) {
+                introVideoRef.current.muted = !isIntroMuted;
+              }
+              setIsIntroMuted(prev => !prev);
+            }}
+            type="button"
+            title={isIntroMuted ? 'Unmute Audio' : 'Mute Audio'}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+              {isIntroMuted ? 'volume_off' : 'volume_up'}
+            </span>
+          </button>
+          <button
+            className="sagu-intro-skip-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSkipIntro();
+            }}
+            type="button"
+            id="skip-intro-btn"
+          >
+            <span>Skip Intro</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              fast_forward
+            </span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   useEffect(() => {
     localStorage.setItem('sagu_theme', theme);
     if (theme === 'light') {
@@ -94,6 +169,7 @@ function App() {
 
   const renderBackground = () => (
     <>
+      {renderCinematicIntro()}
       <div aria-hidden="true" className="slideshow-viewport">
         {SLIDESHOW_IMAGES.map((img, i) => (
           <img
