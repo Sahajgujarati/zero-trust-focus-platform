@@ -3,8 +3,8 @@
 A real-time productivity monitoring ecosystem utilizing a microservices pipeline to classify active tab browsing behavior against dynamic focus categorizations.
 
 ## Demo
+
 https://github.com/user-attachments/assets/3466f289-26f2-4a03-a515-83b61d32ed64
-https://raw.githubusercontent.com/Sahajgujarati/zero-trust-focus-platform/main/Screen%20Recording%202026-10-12%20015555.mp4
 
 ## Architecture
 
