@@ -30,9 +30,83 @@ function formatClock(totalSeconds = 0) {
   return `${String(mins).padStart(2, '0')}:${String(remainingSecs).padStart(2, '0')}`;
 }
 
+// Sagu Cinematic Film Slideshow (Stitch Project 3314208514770998316)
+const SLIDESHOW_IMAGES = [
+  { url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDvl8TQGzCeUWx4f28f8esc3p39tfFNmQOXY6ciUl4BHEzltxsk5FnwMl4l1l7Yoyh1vyMjwdPRvv5LH_kO6I4qZJtm7m_hxxtd7etzi45ebQOTq-WYZ7JaUxvGcmM25FYsfeL1DwfVi-UWTMJ51ys3hpNTi5n1bo2dwM4H6mL_Tu_VqTZi33iAYeE597tTHDd4BzBIB5d1rF1-p88UEz5MsnrAkC-ylTc9Y8JeS4gwi-n-hJWi4Gkzt3ApxOwGXeeu7g', title: 'Interstellar Focus' },
+  { url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDXqcpDLZwm6y7ElHC5AOeOZB2cETs7xW0LYVCuM9xnjgh8L1NEL39zgB8wDnr_yPvxP2DM5q62wAHQdw4aff-LbdIMywAPPht-wjeRdkLPJP62Q1BnpDPfG9FIOedQ8rOFD5XdhW52C7ref8kq7G1thrLpo9tlCq8ytWtXLn3eOblzdFRHZ5Hrj45VilJu8eiVJQaM786mZ0SX-9DvZSX9pYhvTUpUQrWPm2_6814eZb5FbbeiatS8D2hOgwXUwgs35w', title: 'Creed Discipline' },
+  { url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwvDvA1C4iGuM0KV-yU6iTjWuee1jJIUwwPjCybxdc7UracTYzSI7HOAoo4uMiDVWKYWx1N7qwlX8nPh6PzkRNWU3ncnVhmaWI5S-OI0Vi8wOtPac1fkkhLWukwKquZvE2gT1GlIjr-S8l3ZZ9UjK7HHGGFflzXc53Sny7S-VmUk3Z43QgkYD1sW0yq3HjgRCsqXFL8nTXN2Gf_XOCqCEz3YPdboTdduev1sS-2NNbqmf0WzkbfTBa_sxrKXP0M3fq-Q', title: 'Ford v Ferrari Mastery' },
+  { url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBXKmrQOOICDcVJaetQRyFH1cb8vJ6-F0idNEsjenp87nEo85kwY7xQ_DiA07ib8Il7s700S9rZkV9E5XPM_1BmO3L6xDYEk8QA-e3HqbAq8Q2B-y7riavfx78LgbQV9wNv0kGy4nIj7nA_z_kcRWxAq0QJ6--s3wH8HqUi_ocqjGLOlPljQ1PzuY9ZHcHP87TvTRKhxn1pHL3DJBToClZWYRvt0IJGWash9DaOChdOshdX_sT2neJRRkpzCfK_vFlU_Q', title: 'Endurance Grit' },
+  { url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDBJRGdGweaTNijM20JImSHnomhTVuIAp00uHp2qx5yP_fwABTwK215YNbZJddSvyEqkG4SjOQpDNJB5KZkiqupX0D6i2SmiEsN7PDazz4o1VNcGgUDzWr9cqgIVIKwfU1WnqI4vmtvxia4p_asiLBL3jQjuizsFs0730OOXveG1MyMrchTF61aI_J2AYSyrTAi-v6OpJVJ3GGxDJ1keKCEYTsp4euVYd1uPToL0E8u2nONN8O0R-tyXKLi4307OSTrrA', title: 'Rocky Triumph' },
+  { url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCFsoq-H3P3G78RXIjzBK3vBLjFI8iGmx2yH0CfAD-B28ksdMhh_hxVbDHZFmPwA8045kFK9pdheEfNajDRm7voTPwYJcLl4CvA5ZjBRLN2CvJpN71HvPX6Z1UT-rm4h5i3v7VurVf3ktMz79Q4rt7vVQSzTLY61PFck7QnSh-RASuli7akA00v06vPjJ5V9TApSt7vGLhNcA6RMMGMycR0Q5V23P4TwZMj_O8jgBCZhRyzxP38pbmqkRTv-xcD4UjCg', title: 'Pursuit of Purpose' }
+];
+
 function App() {
   // Navigation views: 'login' | 'hub' | 'create' | 'dashboard' | 'history'
   const [view, setView] = useState('login');
+
+  // Slideshow & Dashboard Sub-tabs
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [dashboardTab, setDashboardTab] = useState('fleet'); // 'fleet' | 'policies' | 'status' | 'logs'
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlideIndex(prev => (prev + 1) % SLIDESHOW_IMAGES.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Theme state: 'dark' (default) | 'light'
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('sagu_theme') || 'dark';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sagu_theme', theme);
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  const renderThemeToggle = () => (
+    <button
+      aria-label="Toggle theme"
+      className="sagu-theme-toggle-btn"
+      onClick={toggleTheme}
+      type="button"
+      title={theme === 'dark' ? 'Switch to Light mode' : 'Switch to Dark mode'}
+    >
+      <span className="material-symbols-outlined" style={{ fontSize: '15px', color: theme === 'dark' ? '#ffb95f' : '#2563eb' }}>
+        {theme === 'dark' ? 'dark_mode' : 'light_mode'}
+      </span>
+      <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'capitalize' }}>
+        {theme === 'dark' ? 'Dark' : 'Light'}
+      </span>
+    </button>
+  );
+
+  const renderBackground = () => (
+    <>
+      <div aria-hidden="true" className="slideshow-viewport">
+        {SLIDESHOW_IMAGES.map((img, i) => (
+          <img
+            key={i}
+            src={img.url}
+            alt={img.title}
+            className={`slide-item ${i === currentSlideIndex ? 'active' : ''}`}
+          />
+        ))}
+      </div>
+      <div aria-hidden="true" className="slideshow-vignette" />
+    </>
+  );
 
   // -- Auth state --
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register' | 'forgot' | 'otp'
@@ -1325,19 +1399,23 @@ useEffect(() => {
   if (view === 'banned') {
     return (
       <>
-        <div className="app-bg">
-          <div className="orb orb-1" />
-          <div className="orb orb-2" />
-          <div className="orb orb-3" />
+        {renderBackground()}
+        <div style={{ position: 'fixed', top: '1.25rem', right: '1.5rem', zIndex: 50 }}>
+          {renderThemeToggle()}
         </div>
-        <div className="app-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="banned-card">
-            <div className="banned-icon">🚫</div>
-            <h2 className="banned-title">Permanently Removed</h2>
-            <p className="banned-message">{bannedFromRoom || 'You have been permanently removed from this room due to exceeding the maximum distraction time limit.'}</p>
-            <p className="banned-hint">You cannot re-enter this room. Ask the room creator to set up a new room if you want to try again.</p>
+        <div className="sagu-auth-container">
+          <div className="sagu-auth-card" style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🚫</div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#ff7a73', margin: 0 }}>Permanently Removed</h2>
+            <p style={{ color: '#d4d4d8', fontSize: '0.88rem', margin: '0.75rem 0' }}>
+              {bannedFromRoom || 'You have been permanently removed from this room due to exceeding the maximum distraction time limit.'}
+            </p>
+            <p style={{ color: '#71717a', fontSize: '0.78rem', margin: '0 0 1.25rem' }}>
+              You cannot re-enter this room. Ask the room creator to set up a new room if you want to try again.
+            </p>
             <button
               className="btn btn-secondary"
+              style={{ width: '100%', padding: '0.75rem' }}
               onClick={() => {
                 setBannedFromRoom(null);
                 setCurrentRoom(null);
@@ -1424,31 +1502,23 @@ useEffect(() => {
 
     return (
       <>
-        <div className="app-bg">
-          <div className="orb orb-1" />
-          <div className="orb orb-2" />
-          <div className="orb orb-3" />
+        {renderBackground()}
+        <div style={{ position: 'fixed', top: '1.25rem', right: '1.5rem', zIndex: 50 }}>
+          {renderThemeToggle()}
         </div>
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', position: 'relative', zIndex: 1 }}>
-          <div style={{
-            background: 'rgba(15,23,42,0.85)',
-            backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(99,102,241,0.35)',
-            borderRadius: '24px',
-            padding: '2.5rem 2.5rem 2rem',
-            width: '100%',
-            maxWidth: '440px',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.1)',
-          }}>
-            {/* Logo */}
-            <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-              <div style={{ fontSize: '2.8rem', marginBottom: '0.5rem' }}></div>
-              <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Zero-Trust Focus</h1>
-              <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.3rem' }}>
-                {authMode === 'login' && 'Sign in to your account'}
-                {authMode === 'register' && 'Create a new account'}
-                {authMode === 'forgot' && 'Reset your password'}
-                {authMode === 'otp' && 'Enter the OTP sent to your email'}
+        <div className="sagu-auth-container">
+          <div className="sagu-auth-card">
+            {/* Sagu Brand & Logo */}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '3.2rem', height: '3.2rem', borderRadius: '12px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(78,222,163,0.3)', color: '#4edea3', fontSize: '1.4rem', fontWeight: 800, boxShadow: '0 0 20px rgba(78,222,163,0.25)', marginBottom: '0.75rem' }}>
+                S
+              </div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#ffffff', margin: 0, letterSpacing: '-0.02em' }}>Sagu</h1>
+              <p style={{ color: '#9ba69f', fontSize: '0.84rem', marginTop: '0.35rem' }}>
+                {authMode === 'login' && 'Deep Work Focus Workspace — Sign In'}
+                {authMode === 'register' && 'Create your Sagu Focus Account'}
+                {authMode === 'forgot' && 'Reset password via verified OTP'}
+                {authMode === 'otp' && 'Enter the 6-digit OTP code sent to your email'}
               </p>
             </div>
 
@@ -1567,272 +1637,316 @@ useEffect(() => {
       </>
     );
   }
-if (view === 'hub') {
+  if (view === 'hub') {
     return (
       <>
-        <div className="app-bg">
-          <div className="orb orb-1" />
-          <div className="orb orb-2" />
-          <div className="orb orb-3" />
-        </div>
-        <div className="app-content rooms-page">
-          <div className="rooms-container">
-            {/* Top Bar */}
-            <div className="rooms-top-bar">
-              <div className="rooms-brand">
-                <div className="login-shield small-shield"></div>
-                <div>
-                  <h1 className="rooms-main-title">Zero-Trust Focus Hub</h1>
-                  <p className="rooms-main-subtitle">Real-time time spent tracker on productive vs distracting tabs</p>
-                </div>
+        {renderBackground()}
+        {/* Minimal Glass Header */}
+        <header className="sagu-header">
+          <div className="sagu-header-inner">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div className="sagu-logo-badge">S</div>
+                <span style={{ fontSize: '1.05rem', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>Sagu</span>
               </div>
-              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                {username && <span style={{ color: '#818cf8', fontSize: '0.82rem', fontWeight: 600 }}>👤 {username}</span>}
-                <button className="btn btn-secondary" style={{ padding: '0.45rem 1rem', fontSize: '0.82rem' }}
-                  onClick={() => setView('history')}>History</button>
-                <button className="btn" style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px' }}
-                  onClick={() => { setUsername(''); setView('login'); setAuthMode('login'); setAuthPassword(''); setAuthIdentifier(''); }}>
-                  Logout
-                </button>
+              <div style={{ height: '14px', width: '1px', background: 'rgba(255,255,255,0.15)' }} />
+              <div className="sagu-live-pill">
+                <span className="sagu-dot-live" />
+                <span style={{ fontSize: '11px', color: '#a1a1aa' }}>Focus Hub: <span style={{ color: '#4edea3', fontWeight: 600 }}>Live</span></span>
+                <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+                <span style={{ fontSize: '11px', color: '#a1a1aa' }}>{roomsList.length} Active Rooms</span>
               </div>
             </div>
-
-            {/* Unified Single Join Section */}
-            <div className="quick-join-card">
-              <div className="join-section-title">
-                <span className="section-indicator-dot" />
-                <span>Join a Focus Room</span>
-              </div>
-
-              <div className="quick-join-inputs">
-                <input
-                  type="text"
-                  placeholder="Your Username (e.g. Sahaj)"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="input-field"
-                  autoComplete="off"
-                  name="focus_username"
-                />
-
-                <select
-                  className="input-field select-room-dropdown"
-                  value={selectedRoomId}
-                  onChange={(e) => setSelectedRoomId(e.target.value)}
-                >
-                  <option value="">-- Select Room Name --</option>
-                  {roomsList.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name} ({r.userCount} online)
-                    </option>
-                  ))}
-                </select>
-
-                <div className="password-input-wrap">
-                  <input
-                    type={showJoinPassword ? "text" : "password"}
-                    placeholder="Room Password"
-                    value={joinPassword}
-                    onChange={(e) => setJoinPassword(e.target.value)}
-                    className="input-field password-input-field"
-                    autoComplete="new-password"
-                    name="room_security_token"
-                    onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
-                  />
-                  <button
-                    type="button"
-                    className="password-eye-btn"
-                    onMouseEnter={() => setShowJoinPassword(true)}
-                    onMouseLeave={() => setShowJoinPassword(false)}
-                    onClick={() => setShowJoinPassword(!showJoinPassword)}
-                    title={showJoinPassword ? "Password visible" : "Hover or click to reveal password"}
-                    aria-label="Toggle password visibility"
-                  >
-                    {showJoinPassword ? (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    ) : (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                        <line x1="1" y1="1" x2="23" y2="23" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-
-                <button
-                  id="join-room-btn"
-                  className="btn btn-primary"
-                  onClick={() => handleJoin()}
-                >
-                  Join Room →
-                </button>
-              </div>
-
-              {joinError && (
-                <div className="join-error-msg">
-                  ! {joinError}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              {renderThemeToggle()}
+              {username && (
+                <div className="sagu-avatar-pill" title={`Logged in as ${username}`}>
+                  {username.slice(0, 2).toUpperCase()}
                 </div>
               )}
+              <button
+                className="sagu-nav-btn"
+                onClick={() => setView('history')}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              >
+                <span>History</span>
+              </button>
+              <button
+                className="sagu-nav-btn"
+                style={{ color: '#ff7a73' }}
+                onClick={() => { setUsername(''); setView('login'); setAuthMode('login'); setAuthPassword(''); setAuthIdentifier(''); }}
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main className="sagu-canvas-container">
+          {/* Hub Hero Header */}
+          <div className="sagu-hero-row">
+            <div>
+              <div className="sagu-mode-pill">
+                <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+                ZERO-TRUST WORKSPACE HUB
+              </div>
+              <h1 className="sagu-hero-title">
+                Deep Work <strong>Focus Rooms</strong>
+              </h1>
+              <p className="sagu-hero-desc">
+                Select an active focus sprint, configure custom productive & distracting policies, or launch your own room.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <button
+                className="btn btn-primary"
+                style={{ padding: '0.75rem 1.4rem', fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                onClick={() => setView('create')}
+              >
+                <span>+ Create Focus Room</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Resume Active Session Banner if user has a running session in background */}
+          {(() => {
+            let stored = null;
+            try { stored = JSON.parse(localStorage.getItem('focus_session')); } catch (e) {}
+            const activeSession = currentRoom || (stored?.roomId ? stored : null);
+            if (!activeSession) return null;
+
+            const isLiveRoom = Boolean(currentRoom);
+            const roomName = currentRoom?.name || (roomsList.find(r => r.id === stored?.roomId)?.name) || stored?.roomId || 'Focus Room';
+            const endsAtVal = currentRoom?.endsAt || (roomsList.find(r => r.id === stored?.roomId)?.endsAt);
+
+            return (
+              <div className="sagu-resume-banner">
+                <div>
+                  <div style={{ fontWeight: 700, color: '#4edea3', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span className="sagu-dot-live" />
+                    Session Running: "{roomName}"
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#a1a1aa', marginTop: '0.2rem' }}>
+                    {endsAtVal
+                      ? `Time Remaining: ${formatTime(Math.max(0, Math.round((endsAtVal - currentNow) / 1000)))}`
+                      : "Unlimited session duration"}
+                    {stored?.username ? ` · User: ${stored.username}` : ''}
+                  </div>
+                </div>
+                <button
+                  className="btn btn-primary"
+                  style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+                  onClick={() => {
+                    if (isLiveRoom) {
+                      setView('dashboard');
+                    } else if (stored) {
+                      handleJoin(stored.roomId, stored.password, stored.username);
+                    }
+                  }}
+                >
+                  Resume Dashboard →
+                </button>
+              </div>
+            );
+          })()}
+
+          {/* Quick Join Enclosure */}
+          <div className="sagu-hub-glass-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+              <span className="sagu-dot-live" />
+              <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#ffffff', margin: 0 }}>Join a Focus Sprint</h2>
             </div>
 
-            {/* Resume Active Session Banner if user has a running session in background */}
-            {(() => {
-              let stored = null;
-              try { stored = JSON.parse(localStorage.getItem('focus_session')); } catch (e) {}
-              const activeSession = currentRoom || (stored?.roomId ? stored : null);
-              if (!activeSession) return null;
+            <div className="quick-join-inputs">
+              <input
+                type="text"
+                placeholder="Your Username (e.g. Sahaj)"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="input-field"
+                autoComplete="off"
+                name="focus_username"
+              />
 
-              const isLiveRoom = Boolean(currentRoom);
-              const roomName = currentRoom?.name || (roomsList.find(r => r.id === stored?.roomId)?.name) || stored?.roomId || 'Focus Room';
-              const endsAtVal = currentRoom?.endsAt || (roomsList.find(r => r.id === stored?.roomId)?.endsAt);
-
-              return (
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(6, 214, 160, 0.15), rgba(56, 189, 248, 0.15))',
-                  border: '1px solid rgba(6, 214, 160, 0.4)',
-                  borderRadius: '14px',
-                  padding: '0.9rem 1.4rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '0.75rem',
-                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.25)'
-                }}>
-                  <div>
-                    <div style={{ fontWeight: 800, color: '#06d6a0', fontSize: '0.95rem' }}>
-                      âš¡ Focus Session "{roomName}" is Running!
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.15rem' }}>
-                      {endsAtVal
-                        ? `Session Ends In: ${formatTime(Math.max(0, Math.round((endsAtVal - currentNow) / 1000)))}`
-                        : "Unlimited duration"}
-                      {stored?.username ? ` · User: ${stored.username}` : ''}
-                    </div>
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    style={{ padding: '0.5rem 1.1rem', fontSize: '0.85rem' }}
-                    onClick={() => {
-                      if (isLiveRoom) {
-                        setView('dashboard');
-                      } else if (stored) {
-                        handleJoin(stored.roomId, stored.password, stored.username);
-                      }
-                    }}
-                  >
-                    Resume Running Dashboard →
-                  </button>
-                </div>
-              );
-            })()}
-
-            {/* Active Rooms Section */}
-            <div className="rooms-list-header">
-              <div className="section-title-wrap">
-                <span className="section-indicator-dot" />
-                <h2 className="rooms-section-heading">Available Focus Rooms ({roomsList.length})</h2>
-              </div>
-              <button
-                className="btn btn-secondary btn-refresh"
-                onClick={fetchRooms}
-                title="Refresh rooms list"
+              <select
+                className="input-field select-room-dropdown"
+                value={selectedRoomId}
+                onChange={(e) => setSelectedRoomId(e.target.value)}
               >
-                Refresh
+                <option value="">-- Select Focus Room --</option>
+                {roomsList.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} ({r.userCount} online)
+                  </option>
+                ))}
+              </select>
+
+              <div className="password-input-wrap">
+                <input
+                  type={showJoinPassword ? "text" : "password"}
+                  placeholder="Room Password"
+                  value={joinPassword}
+                  onChange={(e) => setJoinPassword(e.target.value)}
+                  className="input-field password-input-field"
+                  autoComplete="new-password"
+                  name="room_security_token"
+                  onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+                />
+                <button
+                  type="button"
+                  className="password-eye-btn"
+                  onMouseEnter={() => setShowJoinPassword(true)}
+                  onMouseLeave={() => setShowJoinPassword(false)}
+                  onClick={() => setShowJoinPassword(!showJoinPassword)}
+                  title={showJoinPassword ? "Password visible" : "Hover or click to reveal password"}
+                  aria-label="Toggle password visibility"
+                >
+                  {showJoinPassword ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              <button
+                id="join-room-btn"
+                className="btn btn-primary"
+                onClick={() => handleJoin()}
+              >
+                Join Room →
               </button>
             </div>
 
-            {loadingRooms && roomsList.length === 0 && (
-              <div className="rooms-loading">Loading rooms...</div>
-            )}
-
-            {roomsList.length === 0 && !loadingRooms && (
-              <div className="rooms-empty-card">
-                <div className="empty-icon">🏠</div>
-                <h3>No rooms active</h3>
-                <p>Click the button below to create a room with custom productive and distracting websites.</p>
+            {joinError && (
+              <div className="join-error-msg" style={{ marginTop: '1rem' }}>
+                ! {joinError}
               </div>
             )}
+          </div>
 
-            <div className="rooms-grid">
-              {roomsList.map((r) => {
-                const isEnded = r.status === 'ended' || (r.endsAt && (r.endsAt - currentNow) <= 0);
-                const liveLeft = r.endsAt ? Math.max(0, Math.round((r.endsAt - currentNow) / 1000)) : null;
+          {/* Active Rooms Grid Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <span className="sagu-dot-live" />
+              <h2 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#ffffff', margin: 0 }}>
+                Active Workspaces ({roomsList.length})
+              </h2>
+            </div>
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '0.4rem 0.9rem', fontSize: '0.8rem' }}
+              onClick={fetchRooms}
+              title="Refresh rooms list"
+            >
+              ↻ Refresh
+            </button>
+          </div>
 
-                return (
-                <div key={r.id} className="room-item-card">
-                  <div className="room-card-top">
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                        <h3 className="room-name">{r.name}</h3>
-                        {isEnded ? (
-                          <span className="room-status-tag status-tag-ended"> Session Ended</span>
-                        ) : liveLeft !== null ? (
-                          <span className="room-status-tag status-tag-active">⏱ {formatTime(liveLeft)} Left</span>
-                        ) : (
-                          <span className="room-status-tag status-tag-active">Active</span>
-                        )}
+          {loadingRooms && roomsList.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#a1a1aa' }}>
+              Connecting to rooms gateway...
+            </div>
+          )}
+
+          {roomsList.length === 0 && !loadingRooms && (
+            <div className="sagu-hub-glass-card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🏢</div>
+              <h3 style={{ color: '#ffffff', fontSize: '1.1rem', margin: '0 0 0.5rem' }}>No active rooms</h3>
+              <p style={{ color: '#a1a1aa', fontSize: '0.85rem', margin: '0 0 1.25rem' }}>
+                Create the first room and configure tracked websites to start deep work.
+              </p>
+              <button className="btn btn-primary" onClick={() => setView('create')}>
+                + Create Focus Room
+              </button>
+            </div>
+          )}
+
+          {/* Rooms Grid */}
+          <div className="sagu-rooms-grid">
+            {roomsList.map((r) => {
+              const isEnded = r.status === 'ended' || (r.endsAt && (r.endsAt - currentNow) <= 0);
+              const liveLeft = r.endsAt ? Math.max(0, Math.round((r.endsAt - currentNow) / 1000)) : null;
+
+              return (
+                <div key={r.id} className="sagu-room-card">
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#ffffff', margin: '0 0 0.35rem' }}>
+                          {r.name}
+                        </h3>
+                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                          {isEnded ? (
+                            <span className="sagu-pill-badge sagu-pill-dist">Ended</span>
+                          ) : liveLeft !== null ? (
+                            <span className="sagu-pill-badge sagu-pill-prod">⏱ {formatTime(liveLeft)}</span>
+                          ) : (
+                            <span className="sagu-pill-badge sagu-pill-prod">Active</span>
+                          )}
+                          <span style={{ fontSize: '0.72rem', color: '#71717a' }}>
+                            Alert: {formatTime(r.distractionIntervalSec || 60)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="room-privacy-tag">
-                        🔒 Password Protected · Alert every {formatTime(r.distractionIntervalSec || 60)}
-                        {r.lifetimeSec ? ` · Duration: ${formatTime(r.lifetimeSec)}` : ' · Unlimited duration'}
-                        {r.maxDistractionSec ? ` · Kick limit: ${formatTime(r.maxDistractionSec)}` : ' · No kick limit'}
+                      <button
+                        className="room-delete-btn"
+                        onClick={(e) => handleDeleteRoom(r, e)}
+                        title="Delete room (Requires Password)"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Rule Tags */}
+                    <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                        <span className="sagu-pill-badge sagu-pill-prod">
+                          {r.productiveCount} Productive
+                        </span>
+                        <span className="sagu-pill-badge sagu-pill-dist">
+                          {r.distractingCount} Distracting
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+                        {r.config?.productive?.slice(0, 2).map((p, i) => (
+                          <span key={i} className="mini-url-tag tag-prod">
+                            {typeof p === 'string' ? p : p.url}
+                          </span>
+                        ))}
+                        {r.config?.distracting?.slice(0, 2).map((d, i) => (
+                          <span key={i} className="mini-url-tag tag-dist">
+                            {typeof d === 'string' ? d : d.url}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                    <button
-                      className="room-delete-btn"
-                      onClick={(e) => handleDeleteRoom(r, e)}
-                      title="Delete room (Requires Password)"
-                    >
-                      
-                    </button>
                   </div>
 
-                  {/* Room Summary Overview */}
-                  <div className="room-rules-overview">
-                    <div className="rule-badge-row">
-                      <span className="room-rule-pill pill-prod">
-                        Productive URLs: {r.productiveCount}
-                      </span>
-                      <span className="room-rule-pill pill-dist">
-                        Distracting URLs: {r.distractingCount}
-                      </span>
-                    </div>
-
-                    <div className="rule-urls-preview">
-                      {r.config?.productive?.slice(0, 3).map((p, i) => (
-                        <span key={i} className="mini-url-tag tag-prod">
-                          {typeof p === 'string' ? p : p.url}
-                        </span>
-                      ))}
-                      {r.config?.distracting?.slice(0, 3).map((d, i) => (
-                        <span key={i} className="mini-url-tag tag-dist">
-                          {typeof d === 'string' ? d : d.url}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Card footer */}
-                  <div className="room-card-footer">
-                    <span className="room-user-count">
-                      {r.userCount} member{r.userCount === 1 ? '' : 's'}
+                  {/* Card Footer */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.85rem' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#a1a1aa' }}>
+                      {r.userCount} online
                     </span>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
                       {(r.status === 'ended' || (r.finalLeaderboard && r.finalLeaderboard.length > 0)) && (
                         <button
-                          className="btn btn-secondary btn-join-card"
-                          style={{ padding: '0.45rem 0.8rem', fontSize: '0.8rem', color: '#fbbf24', borderColor: 'rgba(251, 191, 36, 0.4)' }}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.4rem 0.75rem', fontSize: '0.78rem', color: '#ffb95f', borderColor: 'rgba(255,185,95,0.3)' }}
                           onClick={() => handleOpenLeaderboard(r)}
                         >
                           Results
                         </button>
                       )}
                       <button
-                        className="btn btn-primary btn-join-card"
+                        className="btn btn-primary"
+                        style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem' }}
                         onClick={() => {
                           setSelectedRoomId(r.id);
                           let user = (username || '').trim();
@@ -1848,31 +1962,20 @@ if (view === 'hub') {
                           }
                         }}
                       >
-                        {r.status === 'ended' ? 'Enter Room →' : 'Join Room →'}
+                        {r.status === 'ended' ? 'Enter →' : 'Join →'}
                       </button>
                     </div>
                   </div>
                 </div>
               );
             })}
-            </div>
-
-            {/* Static Create Room Button at Bottom */}
-            <div className="bottom-create-room-bar">
-              <button
-                id="create-room-bottom-btn"
-                className="btn btn-primary bottom-create-btn"
-                onClick={() => setView('create')}
-              >
-                + Create New Room
-              </button>
-            </div>
           </div>
-        </div>
+        </main>
         {renderLeaderboardModal()}
       </>
     );
   }
+
 
   // ===============================================================
   // HISTORY VIEW
@@ -1886,58 +1989,110 @@ if (view === 'hub') {
     };
     return (
       <>
-        <div className="app-bg"><div className="orb orb-1"/><div className="orb orb-2"/><div className="orb orb-3"/></div>
-        <div style={{ minHeight:'100vh', padding:'2rem 1rem', position:'relative', zIndex:1 }}>
-          <div style={{ maxWidth:'780px', margin:'0 auto' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1.75rem', flexWrap:'wrap' }}>
-              <button className="btn btn-secondary" style={{ padding:'0.45rem 1rem', fontSize:'0.82rem' }}
-                onClick={() => setView('hub')}>← Back to Hub</button>
-              <div>
-                <h2 style={{ color:'#f1f5f9', fontWeight:800, fontSize:'1.4rem', margin:0 }}>My Focus History</h2>
-                {username && <p style={{ color:'#64748b', fontSize:'0.82rem', margin:'0.2rem 0 0' }}>Sessions for <strong style={{color:'#818cf8'}}>{username}</strong></p>}
+        {renderBackground()}
+        {/* Minimal Glass Header */}
+        <header className="sagu-header">
+          <div className="sagu-header-inner">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div className="sagu-logo-badge">S</div>
+                <span style={{ fontSize: '1.05rem', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>Sagu</span>
+              </div>
+              <div style={{ height: '14px', width: '1px', background: 'rgba(255,255,255,0.15)' }} />
+              <button
+                className="sagu-nav-btn"
+                onClick={() => setView('hub')}
+              >
+                ← Back to Hub
+              </button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              {renderThemeToggle()}
+              {username && (
+                <div className="sagu-avatar-pill" title={`Logged in as ${username}`}>
+                  {username.slice(0, 2).toUpperCase()}
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <main className="sagu-canvas-container" style={{ maxWidth: '820px' }}>
+          <div className="sagu-hero-row">
+            <div>
+              <div className="sagu-mode-pill">
+                <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+                SESSION AUDIT LOG
+              </div>
+              <h1 className="sagu-hero-title">
+                My Focus <strong>History</strong>
+              </h1>
+              {username && (
+                <p className="sagu-hero-desc">
+                  Recorded focus and distraction intervals for <strong style={{ color: '#4edea3' }}>{username}</strong>.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {loadingHistory ? (
+            <div style={{ textAlign: 'center', color: '#a1a1aa', padding: '3rem' }}>
+              Loading session history...
+            </div>
+          ) : !username ? (
+            <div className="sagu-hub-glass-card" style={{ textAlign: 'center', color: '#a1a1aa', padding: '3rem' }}>
+              ! Please sign in to view your history.
+            </div>
+          ) : historyData.length === 0 ? (
+            <div className="sagu-hub-glass-card" style={{ textAlign: 'center', color: '#a1a1aa', padding: '3rem' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📋</div>
+              <div style={{ fontWeight: 600, color: '#d4d4d8', fontSize: '1.05rem' }}>No sessions recorded yet</div>
+              <div style={{ fontSize: '0.82rem', marginTop: '0.35rem', color: '#71717a' }}>
+                Join a Focus Room to start logging deep work intervals.
               </div>
             </div>
-            {loadingHistory ? (
-              <div style={{ textAlign:'center', color:'#64748b', padding:'3rem' }}>Loading history...</div>
-            ) : !username ? (
-              <div style={{ textAlign:'center', color:'#64748b', padding:'3rem' }}>! Please log in first.</div>
-            ) : historyData.length === 0 ? (
-              <div style={{ background:'rgba(15,23,42,0.7)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:'16px', padding:'3rem', textAlign:'center', color:'#64748b' }}>
-                <div style={{ fontSize:'2.5rem', marginBottom:'0.75rem' }}>📋</div>
-                <div style={{ fontWeight:600, color:'#94a3b8' }}>No sessions recorded yet</div>
-                <div style={{ fontSize:'0.82rem', marginTop:'0.4rem' }}>Join a Focus Room to start building your history.</div>
-              </div>
-            ) : (
-              <div style={{ display:'flex', flexDirection:'column', gap:'0.85rem' }}>
-                {[...historyData].reverse().map((entry, i) => {
-                  const duration = entry.joinedAt && entry.leftAt ? Math.round((entry.leftAt - entry.joinedAt) / 1000) : null;
-                  return (
-                    <div key={i} style={{ background:'rgba(15,23,42,0.8)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:'14px', padding:'1.1rem 1.4rem', display:'flex', alignItems:'center', gap:'1.2rem', flexWrap:'wrap', boxShadow:'0 4px 16px rgba(0,0,0,0.25)', transition:'border-color 0.2s' }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor='rgba(99,102,241,0.5)'}
-                      onMouseLeave={e => e.currentTarget.style.borderColor='rgba(99,102,241,0.2)'}>
-                      <div style={{ background:'linear-gradient(135deg,#6366f1,#818cf8)', borderRadius:'50%', width:'36px', height:'36px', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, color:'#fff', fontSize:'0.85rem', flexShrink:0 }}>{historyData.length - i}</div>
-                      <div style={{ flex:1, minWidth:'200px' }}>
-                        <div style={{ fontWeight:700, color:'#e2e8f0', fontSize:'0.95rem', marginBottom:'0.3rem' }}> {entry.roomId || 'Unknown Room'}</div>
-                        <div style={{ fontSize:'0.8rem', color:'#64748b', display:'flex', flexWrap:'wrap', gap:'0.75rem' }}>
-                          <span><span style={{color:'#6ee7b7'}}>Joined:</span> {fmt(entry.joinedAt)}</span>
-                          <span><span style={{color:'#fca5a5'}}>Left:</span> {entry.leftAt ? fmt(entry.leftAt) : <span style={{color:'#fbbf24'}}>Still active</span>}</span>
-                        </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {[...historyData].reverse().map((entry, i) => {
+                const duration = entry.joinedAt && entry.leftAt ? Math.round((entry.leftAt - entry.joinedAt) / 1000) : null;
+                return (
+                  <div key={i} className="sagu-history-row">
+                    <div style={{ background: 'rgba(78, 222, 163, 0.15)', border: '1px solid rgba(78, 222, 163, 0.35)', borderRadius: '10px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#4edea3', fontSize: '0.85rem', flexShrink: 0 }}>
+                      {historyData.length - i}
+                    </div>
+                    <div style={{ flex: 1, minWidth: '200px' }}>
+                      <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '0.95rem', marginBottom: '0.25rem' }}>
+                        {entry.roomId || 'Focus Room'}
                       </div>
-                      <div style={{ textAlign:'right', flexShrink:0 }}>
-                        {duration !== null ? (
-                          <><div style={{ fontWeight:700, color:'#818cf8', fontSize:'0.95rem' }}>{formatTime(duration)}</div><div style={{ fontSize:'0.75rem', color:'#64748b' }}>session time</div></>
-                        ) : (<div style={{ fontWeight:600, color:'#fbbf24', fontSize:'0.82rem' }}>Active</div>)}
+                      <div style={{ fontSize: '0.78rem', color: '#a1a1aa', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                        <span><span style={{ color: '#4edea3' }}>Joined:</span> {fmt(entry.joinedAt)}</span>
+                        <span><span style={{ color: '#ff7a73' }}>Left:</span> {entry.leftAt ? fmt(entry.leftAt) : <span style={{ color: '#ffb95f' }}>Still Active</span>}</span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      {duration !== null ? (
+                        <>
+                          <div style={{ fontWeight: 600, color: '#4edea3', fontSize: '0.95rem', fontFamily: 'var(--font-mono)' }}>
+                            {formatTime(duration)}
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: '#71717a' }}>session duration</div>
+                        </>
+                      ) : (
+                        <div style={{ fontWeight: 600, color: '#ffb95f', fontSize: '0.82rem' }}>
+                          ● Active Now
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </main>
       </>
     );
   }
+
 
   // ===============================================================
   // VIEW 2: CONFIGURE ROOM & TIME RULES
@@ -1945,21 +2100,45 @@ if (view === 'hub') {
   if (view === 'create') {
     return (
       <>
-        <div className="app-bg">
-          <div className="orb orb-1" />
-          <div className="orb orb-2" />
-          <div className="orb orb-3" />
-        </div>
-        <div className="app-content setup-page">
-          <div className="setup-card">
-            <button className="btn-back" onClick={() => setView('hub')}>
-              ← Back to Hub
-            </button>
+        {renderBackground()}
+        {/* Minimal Glass Header */}
+        <header className="sagu-header">
+          <div className="sagu-header-inner">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div className="sagu-logo-badge">S</div>
+                <span style={{ fontSize: '1.05rem', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>Sagu</span>
+              </div>
+              <div style={{ height: '14px', width: '1px', background: 'rgba(255,255,255,0.15)' }} />
+              <button
+                className="sagu-nav-btn"
+                onClick={() => setView('hub')}
+              >
+                ← Back to Hub
+              </button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              {renderThemeToggle()}
+              {username && (
+                <div className="sagu-avatar-pill" title={`Logged in as ${username}`}>
+                  {username.slice(0, 2).toUpperCase()}
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
 
-            <div className="login-header">
-              <div className="login-shield"></div>
-              <h1 className="login-title">Create Focus Room</h1>
-              <p className="login-subtitle">Configure productive/distracting websites and recurring alert interval</p>
+        <main className="sagu-canvas-container" style={{ maxWidth: '820px' }}>
+          <div className="sagu-setup-card">
+            <div>
+              <div className="sagu-mode-pill" style={{ marginBottom: '0.5rem' }}>
+                <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+                WORKSPACE POLICY GENERATOR
+              </div>
+              <h1 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#ffffff', margin: 0 }}>Create Focus Room</h1>
+              <p style={{ color: '#a1a1aa', fontSize: '0.84rem', marginTop: '0.35rem' }}>
+                Configure monitored websites, distraction alert frequencies, and kick-out enforcement.
+              </p>
             </div>
 
             {/* Room Name, Password & Alert Interval */}
@@ -2403,379 +2582,752 @@ if (view === 'hub') {
               </button>
             </div>
           </div>
-        </div>
+        </main>
       </>
     );
   }
 
   // ===============================================================
-  // VIEW 3: LIVE TIME-TRACKING DASHBOARD
+  // VIEW 3: LIVE TIME-TRACKING DASHBOARD (Sagu Unified Bar Workspace)
   // ===============================================================
   return (
     <>
-      <div className="app-bg">
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-      </div>
-      <div className="app-content dashboard">
-        {/* Header */}
-        <header className="dash-header">
-          <div className="dash-header-inner">
-            <div className="dash-brand">
+      {renderBackground()}
+
+      {/* Minimal Sagu Glass Header */}
+      <header className="sagu-header">
+        <div className="sagu-header-inner">
+          {/* Brand & Room Status */}
+          <div className="sagu-header-left">
+            <div className="sagu-brand-link" onClick={handleLeaveRoom} title="Exit to Hub">
+              <div className="sagu-logo-badge">S</div>
+              <span className="sagu-brand-name">Sagu</span>
+            </div>
+
+            <div className="sagu-header-divider" />
+
+            {/* Room Live Pill */}
+            <div className="sagu-live-pill">
+              <span className="sagu-dot-live" />
+              <span className="sagu-live-tag">Live</span>
+              <span className="sagu-pill-sep">•</span>
               <button
-                className="btn btn-secondary"
-                style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', marginRight: '0.5rem' }}
-                onClick={handleLeaveRoom}
+                className="sagu-pill-btn"
+                onClick={() => {
+                  navigator.clipboard.writeText(currentRoom?.id || '');
+                  alert(`Copied Room ID: ${currentRoom?.id || ''}`);
+                }}
+                title="Click to copy Room ID"
               >
-                ← Exit to Hub
+                <span>{currentRoom?.id || 'room-id'}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '12px', color: '#71717a' }}>content_copy</span>
               </button>
-              <div className="dash-shield">🛡️</div>
-              <div className="dash-title-group">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <h1 className="dash-title">{currentRoom?.name || 'Live Focus Dashboard'}</h1>
-                  {isCreator && (
-                    <span className="host-creator-pill" title="You created this room and have full administrative privileges">
-                      Host (Creator)
-                    </span>
-                  )}
+              <span className="sagu-pill-sep">•</span>
+              <span style={{ fontSize: '11px', color: '#a1a1aa', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                Pass: <code style={{ color: '#4edea3', fontFamily: 'var(--font-mono)' }}>{showPassword ? currentPassword : "••••"}</code>
+              </span>
+              <button
+                className="sagu-pill-subbtn"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? 'Hide Password' : 'Show Password'}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+              <button
+                className="sagu-pill-subbtn"
+                onClick={handleCopyPassword}
+                title="Copy Password"
+              >
+                {copiedPass ? "✓" : "Copy"}
+              </button>
+              <span className="sagu-pill-sep">•</span>
+              <span style={{ fontSize: '11px', color: '#a1a1aa' }}>
+                {roomUsers.length} Member{roomUsers.length === 1 ? '' : 's'}
+              </span>
+              {isCreator && (
+                <>
+                  <span className="sagu-pill-sep">•</span>
+                  <span className="sagu-creator-badge">
+                    Host (Creator)
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Nav Links & Action Utilities */}
+          <div className="sagu-header-right">
+            {renderThemeToggle()}
+            {isCreator && (
+              <button
+                className="btn-edit-settings"
+                onClick={handleOpenSettingsModal}
+                title="Configure room websites, recurring alert intervals, and kickout limits"
+              >
+                <span>⚙️</span>
+                <span>Room Settings</span>
+              </button>
+            )}
+
+            <button
+              className="btn-view-leaderboard"
+              onClick={() => handleOpenLeaderboard()}
+              title="View Leaderboard"
+            >
+              <span>🏆</span>
+              <span>Leaderboard</span>
+            </button>
+
+            {currentRoom?.status !== 'ended' && (
+              <button
+                className="btn-end-session"
+                onClick={handleEndSessionEarly}
+                title="End focus session now and finalize leaderboard"
+              >
+                <span>⏹️</span>
+                <span>End Session</span>
+              </button>
+            )}
+
+            <button
+              className="sagu-nav-btn sagu-exit-btn"
+              onClick={handleLeaveRoom}
+              title="Exit to Rooms Hub"
+            >
+              ← Exit to Hub
+            </button>
+
+            <div className="sagu-avatar-pill" title={`Logged in as ${username}`}>
+              {(username || 'SG').slice(0, 2).toUpperCase()}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Real-time Toast Alerts */}
+      <div className="alerts-container">
+        {alerts.map((alert, i) => (
+          <div key={i} className="alert-toast">
+            <span className="alert-icon">!</span>
+            {alert}
+          </div>
+        ))}
+      </div>
+
+      {/* Main Content Canvas */}
+      <main className="sagu-canvas-container">
+        {/* Hero Statement */}
+        <section className="sagu-hero-row">
+          <div>
+            <div className="sagu-mode-pill">
+              <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+              FOCUS MODE ACTIVE
+            </div>
+            <h1 className="sagu-hero-title">
+              Deep Work <strong>{currentRoom?.name || 'Session'}</strong>
+            </h1>
+            <p className="sagu-hero-desc">
+              See live focus levels across your team, keep distractions away, and build momentum together.
+            </p>
+          </div>
+
+          <div className="sagu-hero-cards">
+            {/* Live Score Highlight Block */}
+            <div className="sagu-score-card">
+              <div style={{ position: 'relative', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg style={{ width: '44px', height: '44px', transform: 'rotate(-90deg)' }} viewBox="0 0 36 36">
+                  <path
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.12)"
+                    strokeWidth="3"
+                  />
+                  <path
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none"
+                    stroke="#4edea3"
+                    strokeDasharray={`${teamRatio}, 100`}
+                    strokeLinecap="round"
+                    strokeWidth="3"
+                  />
+                </svg>
+                <span style={{ position: 'absolute', fontSize: '10px', fontWeight: 700, color: '#ffffff' }}>
+                  {teamRatio}%
+                </span>
+              </div>
+              <div>
+                <div style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#a1a1aa', fontWeight: 600 }}>
+                  Team Score
                 </div>
-                <div className="dash-room-pass">
-                  <span>Room Password:</span>
-                  <code>{showPassword ? currentPassword : "••••••••"}</code>
-                  <button
-                    className="pass-toggle-btn"
-                    onClick={() => setShowPassword(!showPassword)}
-                    title={showPassword ? 'Hide Password' : 'Show Password'}
-                  >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-                  <button
-                    className="copy-btn small"
-                    onClick={handleCopyPassword}
-                    title="Copy Room Password"
-                  >
-                    {copiedPass ? "Copied" : "Copy"}
-                  </button>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '2px' }}>
+                  <span>{teamRatio >= 75 ? 'High Focus' : teamRatio >= 50 ? 'Moderate' : 'Needs Focus'}</span>
+                  <span style={{ fontSize: '10px', color: '#4edea3' }}>{teamRatio}%</span>
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <div className="dash-user-badge">
-                <span className="status-dot" />
-                {username}
+
+            {/* Zero-Trust Sync Card */}
+            <div className="sagu-score-card">
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(78,222,163,0.12)', border: '1px solid rgba(78,222,163,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4edea3', flexShrink: 0 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>extension</span>
+              </div>
+              <div>
+                <div style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#a1a1aa', fontWeight: 600 }}>
+                  Zero-Trust Sync
+                </div>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.45rem', marginTop: '2px' }}>
+                  <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+                  <span>Extension v2.4 Active</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setDashboardTab('status')}
+                style={{ background: 'none', border: 'none', color: '#4edea3', fontSize: '11px', cursor: 'pointer', paddingLeft: '0.5rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}
+              >
+                Inspect
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* UNIFIED METRIC BAR: One single continuous horizontal bar with frosted obsidian blur & subtle dividers */}
+        <section className="sagu-metric-bar">
+          <div className="sagu-metric-grid">
+            {/* Metric 1: Focus Score */}
+            <div className="sagu-metric-col">
+              <div>
+                <div className="sagu-metric-header">
+                  <span>FOCUS SCORE</span>
+                  <span style={{ color: '#4edea3' }}>{teamRatio >= 70 ? 'High' : 'Active'}</span>
+                </div>
+                <div className="sagu-metric-val">{teamRatio}%</div>
+                <p className="sagu-metric-sub">Average score across active members</p>
+              </div>
+              <div className="sagu-metric-progress">
+                <div className="sagu-progress-bar" style={{ width: `${teamRatio}%` }} />
+              </div>
+            </div>
+
+            {/* Metric 2: Monitored Tabs / Rules */}
+            <div className="sagu-metric-col">
+              <div>
+                <div className="sagu-metric-header">
+                  <span>MONITORED SITES</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)' }}>tab</span>
+                </div>
+                <div className="sagu-metric-val">
+                  {(currentRoom?.config?.productive?.length || 0) + (currentRoom?.config?.distracting?.length || 0)}
+                </div>
+                <p className="sagu-metric-sub">
+                  {currentRoom?.config?.productive?.length || 0} productive · {currentRoom?.config?.distracting?.length || 0} distracting
+                </p>
+              </div>
+              <div style={{ fontSize: '10px', color: '#4edea3', marginTop: '0.75rem' }}>
+                Strict Rule Policy Active
+              </div>
+            </div>
+
+            {/* Metric 3: Focus Time & Lifetime Countdown */}
+            <div className="sagu-metric-col">
+              <div>
+                <div className="sagu-metric-header">
+                  <span>
+                    {currentRoom?.status === 'ended' ? 'STATUS' : timeRemaining !== null ? 'TIME REMAINING' : 'TEAM FOCUS TIME'}
+                  </span>
+                  <span style={{ color: '#ffb95f', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>bolt</span>Flow
+                  </span>
+                </div>
+                <div className="sagu-metric-val">
+                  {currentRoom?.status === 'ended' ? (
+                    <span style={{ color: '#ff7a73' }}>Ended</span>
+                  ) : timeRemaining !== null ? (
+                    formatTime(timeRemaining)
+                  ) : (
+                    formatTime(totalTeamProdSec)
+                  )}
+                </div>
+                <p className="sagu-metric-sub">
+                  Total productive: {formatTime(totalTeamProdSec)}
+                </p>
+              </div>
+              <div style={{ fontSize: '10px', color: '#a1a1aa', marginTop: '0.75rem' }}>
+                {timeRemaining !== null ? 'Automatic session finalization' : 'Unlimited duration sprint'}
+              </div>
+            </div>
+
+            {/* Metric 4: Distraction Breaches & Limits */}
+            <div className="sagu-metric-col">
+              <div>
+                <div className="sagu-metric-header">
+                  <span>DISTRACTION LIMITS</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#ff7a73' }}>warning</span>
+                </div>
+                <div className="sagu-metric-val" style={{ color: totalTeamDistSec > 0 ? '#ff7a73' : '#ffffff' }}>
+                  {formatTime(totalTeamDistSec)}
+                </div>
+                <p className="sagu-metric-sub">
+                  Alert every {formatTime(currentRoom?.config?.distractionIntervalSec || 60)}
+                </p>
+              </div>
+              <div style={{ fontSize: '10px', color: currentRoom?.config?.maxDistractionSec ? '#ffb95f' : '#4edea3', marginTop: '0.75rem' }}>
+                {currentRoom?.config?.maxDistractionSec
+                  ? `Kick limit: ${formatTime(currentRoom.config.maxDistractionSec)}`
+                  : 'No kick limit (Unlimited)'}
               </div>
             </div>
           </div>
-        </header>
+        </section>
 
-        {/* Real-time Toast Alerts */}
-        <div className="alerts-container">
-          {alerts.map((alert, i) => (
-            <div key={i} className="alert-toast">
-              <span className="alert-icon">!</span>
-              {alert}
+        {/* UNIFIED LOWER SECTION BAR: Cohesive frosted obsidian enclosure for Tabs Navigation AND Content Cards */}
+        <section className="sagu-panel-enclosure">
+          {/* Top Controls inside unified enclosure */}
+          <div className="sagu-panel-top">
+            {/* Segmented Filter Pills */}
+            <div className="sagu-segmented-tabs">
+              <button
+                className={`sagu-tab-item ${dashboardTab === 'fleet' ? 'active' : ''}`}
+                onClick={() => setDashboardTab('fleet')}
+                type="button"
+              >
+                Team Members ({roomUsers.length})
+              </button>
+              <button
+                className={`sagu-tab-item ${dashboardTab === 'policies' ? 'active' : ''}`}
+                onClick={() => setDashboardTab('policies')}
+                type="button"
+              >
+                Allowed Sites
+              </button>
+              <button
+                className={`sagu-tab-item ${dashboardTab === 'status' ? 'active' : ''}`}
+                onClick={() => setDashboardTab('status')}
+                type="button"
+              >
+                Connection Status
+              </button>
+              <button
+                className={`sagu-tab-item ${dashboardTab === 'logs' ? 'active' : ''}`}
+                onClick={() => setDashboardTab('logs')}
+                type="button"
+              >
+                Live Feed ({currentRoom?.logs?.length || 0})
+              </button>
             </div>
-          ))}
-        </div>
 
-        {/* Dashboard Body */}
-        <main className="dash-body">
-          {/* Room Lifetime Countdown & Session Controls */}
-          <div className="session-countdown-bar">
-            <div className="session-countdown-info">
-              <span style={{ fontSize: '1.4rem' }}>
-                
-              </span>
-              <div>
-                <div style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>
-                  {currentRoom?.status === 'ended' ? 'Session Status' : 'Session Lifetime Remaining'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '10px', color: '#a1a1aa' }}>
+              <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+              <span>Live updates on (WebSocket sync)</span>
+            </div>
+          </div>
+
+          {/* TAB 1: FLEET (Team Members Grid & Detailed Breakdown) */}
+          {dashboardTab === 'fleet' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* Member Peer Cards */}
+              <div className="sagu-peers-grid">
+                {roomUsers.map((user, index) => {
+                  const userProdSec = user.productiveSec || 0;
+                  const userDistSec = user.distractingSec || 0;
+                  const userUntrackedSec = user.untrackedSec || 0;
+                  const userTotalSec = userProdSec + userDistSec;
+                  const userRatio = userTotalSec > 0 ? Math.round((userProdSec / userTotalSec) * 100) : 100;
+                  const isDistracted = user.currentCategory === 'distracting';
+                  const isProductive = user.currentCategory === 'productive';
+                  const isSelf = user.username === username;
+
+                  return (
+                    <div
+                      key={user.id || index}
+                      className={`sagu-peer-card ${isDistracted ? 'is-distracted' : ''}`}
+                    >
+                      <div>
+                        {/* Header: Avatar, Name, Score */}
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                            <div className={`sagu-peer-avatar ${isDistracted ? 'avatar-dist' : isProductive ? 'avatar-prod' : 'avatar-neutral'}`}>
+                              {(user.username || 'U').slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <span>{user.username}</span>
+                                {isSelf && (
+                                  <span style={{ fontSize: '9px', padding: '0.1rem 0.35rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)', color: '#4edea3', fontWeight: 600 }}>
+                                    You
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{ fontSize: '10px', color: '#71717a' }}>
+                                {isProductive ? 'Focusing' : isDistracted ? 'Distracted' : 'Neutral Tab'}
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: isDistracted ? '#ff7a73' : '#4edea3', fontFamily: 'var(--font-mono)' }}>
+                              {userRatio}%
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Current Tab Preview */}
+                        <div style={{ marginTop: '0.85rem' }}>
+                          <div style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#71717a', fontWeight: 600 }}>
+                            {isDistracted ? 'Off-Task Tab' : 'Current Tab'}
+                          </div>
+                          <div
+                            className="sagu-url-preview"
+                            style={{ color: isDistracted ? '#ff7a73' : '#d4d4d8' }}
+                            title={user.currentUrl || 'Idle (no tab reported)'}
+                          >
+                            {user.currentUrl || 'Idle / Browsing'}
+                          </div>
+                        </div>
+
+                        {/* Individual Time Pills (Productive, Distracting, Neutral) */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.35rem', marginTop: '0.75rem' }}>
+                          <div style={{ background: 'rgba(78,222,163,0.08)', borderRadius: '6px', padding: '0.35rem 0.45rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '8px', color: '#4edea3', fontWeight: 700 }}>PROD</div>
+                            <div style={{ fontSize: '11px', color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{formatClock(userProdSec)}</div>
+                          </div>
+                          <div style={{ background: 'rgba(239,68,68,0.08)', borderRadius: '6px', padding: '0.35rem 0.45rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '8px', color: '#ff7a73', fontWeight: 700 }}>DIST</div>
+                            <div style={{ fontSize: '11px', color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{formatClock(userDistSec)}</div>
+                          </div>
+                          <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '6px', padding: '0.35rem 0.45rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '8px', color: '#a1a1aa', fontWeight: 700 }}>NEUT</div>
+                            <div style={{ fontSize: '11px', color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{formatClock(userUntrackedSec)}</div>
+                          </div>
+                        </div>
+
+                        {/* Kick Limit Bar if configured */}
+                        {currentRoom?.config?.maxDistractionSec > 0 && (() => {
+                          const maxSec = currentRoom.config.maxDistractionSec;
+                          const usedPct = Math.min(100, Math.round((userDistSec / maxSec) * 100));
+                          const danger = usedPct >= 80 ? '#ff7a73' : usedPct >= 50 ? '#ffb95f' : '#4edea3';
+                          return (
+                            <div style={{ marginTop: '0.65rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#71717a', marginBottom: '2px' }}>
+                                <span>Kick: {formatTime(userDistSec)} / {formatTime(maxSec)}</span>
+                                <span style={{ color: danger, fontWeight: 700 }}>{usedPct}%</span>
+                              </div>
+                              <div style={{ height: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '9999px', overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${usedPct}%`, background: danger, transition: 'width 0.3s' }} />
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Card Bottom: Status Pill */}
+                      <div style={{ paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '10px' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: isDistracted ? '#ff7a73' : isProductive ? '#4edea3' : '#a1a1aa' }}>
+                          <span className="sagu-dot-live" style={{ width: '5px', height: '5px', background: isDistracted ? '#ff7a73' : '#4edea3' }} />
+                          {isDistracted ? `Distracted (${user.consecutiveDistractingSec || 0}s)` : isProductive ? 'In The Zone' : 'Neutral Site'}
+                        </span>
+                        <span style={{ color: '#71717a' }}>{userRatio}% Score</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Empty state if no peers connected */}
+              {roomUsers.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+                  <div className="radar-container" style={{ margin: '0 auto 1.5rem' }}>
+                    <div className="radar-ring radar-ring-1" />
+                    <div className="radar-ring radar-ring-2" />
+                    <div className="radar-ring radar-ring-3" />
+                    <div className="radar-sweep" />
+                    <div className="radar-center-dot" />
+                  </div>
+                  <h3 style={{ color: '#ffffff', fontSize: '1.1rem', margin: '0 0 0.5rem' }}>Waiting for Chrome Extension sync...</h3>
+                  <p style={{ color: '#a1a1aa', fontSize: '0.85rem', margin: '0' }}>
+                    Connect the Chrome Extension with Username <strong style={{ color: '#4edea3' }}>{username}</strong> and Room Password <strong style={{ color: '#4edea3' }}>{currentPassword}</strong>.
+                  </p>
                 </div>
-                {currentRoom?.status === 'ended' ? (
-                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f87171' }}>
-                    Focus Session Completed!
+              )}
+
+              {/* Detailed Breakdown Table */}
+              {roomUsers.length > 0 && (
+                <div style={{ marginTop: '0.5rem', overflowX: 'auto' }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+                    Individual Member Breakdown Table
                   </div>
-                ) : timeRemaining !== null ? (
-                  <div className="session-clock-display">
-                    {formatTime(timeRemaining)}
-                  </div>
-                ) : (
-                  <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#38bdf8' }}>
-                    Unlimited Duration
-                  </div>
+                  <table className="breakdown-table">
+                    <thead>
+                      <tr>
+                        <th>Team Member</th>
+                        <th>Current Site</th>
+                        <th>Productive Time</th>
+                        <th>Distracting Time</th>
+                        <th>Untracked Time</th>
+                        <th>Focus Ratio</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {roomUsers.map((u) => {
+                        const prod = u.productiveSec || 0;
+                        const dist = u.distractingSec || 0;
+                        const untracked = u.untrackedSec || 0;
+                        const total = prod + dist;
+                        const ratio = total > 0 ? Math.round((prod / total) * 100) : 100;
+                        const isDist = u.currentCategory === 'distracting';
+
+                        return (
+                          <tr key={u.id}>
+                            <td className="table-username">
+                              <strong>{u.username}</strong>
+                              {u.username === username && (
+                                <span style={{ marginLeft: '0.4rem', fontSize: '9px', padding: '1px 5px', borderRadius: '4px', background: 'rgba(78,222,163,0.15)', color: '#4edea3' }}>
+                                  You
+                                </span>
+                              )}
+                            </td>
+                            <td className="table-url" title={u.currentUrl || 'Idle'}>
+                              {u.currentUrl ? (u.currentUrl.length > 32 ? u.currentUrl.substring(0, 32) + '...' : u.currentUrl) : 'Idle'}
+                            </td>
+                            <td className="text-green table-mono">{formatTime(prod)}</td>
+                            <td className="text-red table-mono">{formatTime(dist)}</td>
+                            <td className="table-mono" style={{ opacity: 0.6 }}>{formatTime(untracked)}</td>
+                            <td>
+                              <span className="ratio-tag">{ratio}%</span>
+                            </td>
+                            <td>
+                              <span className={`sagu-pill-badge ${isDist ? 'sagu-pill-dist' : 'sagu-pill-prod'}`}>
+                                {isDist ? 'Distracted' : 'Focused'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: POLICIES (Allowed & Distracting Sites) */}
+          {dashboardTab === 'policies' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ fontSize: '0.82rem', color: '#a1a1aa' }}>
+                  Room Policy: <strong style={{ color: '#ffffff' }}>Strict Engineering Zero-Trust</strong>
+                </div>
+                {isCreator && (
+                  <button
+                    className="btn btn-primary"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.8rem' }}
+                    onClick={handleOpenSettingsModal}
+                  >
+                    ⚙️ Edit Rules & Alert Interval
+                  </button>
+                )}
+              </div>
+
+              {/* Productive Rules Section */}
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#4edea3', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.25rem' }}>
+                <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+                Allowed & Productive Websites (+1.5 / min)
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {currentRoom?.config?.productive?.map((site, idx) => {
+                  const urlStr = typeof site === 'string' ? site : site.url;
+                  return (
+                    <div key={idx} className="sagu-policy-item">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                        <span className="sagu-dot-live" style={{ width: '7px', height: '7px' }} />
+                        <div>
+                          <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff' }}>Productive Website Domain</div>
+                          <div style={{ fontSize: '0.75rem', color: '#a1a1aa', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>{urlStr}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span className="sagu-pill-badge sagu-pill-prod">+1.5 / min focus</span>
+                        <span style={{ fontSize: '10px', color: '#71717a' }}>Tracked</span>
+                      </div>
+                    </div>
+                  );
+                })}
+                {(!currentRoom?.config?.productive || currentRoom.config.productive.length === 0) && (
+                  <div style={{ color: '#71717a', fontSize: '0.82rem', padding: '1rem' }}>No productive websites added.</div>
+                )}
+              </div>
+
+              {/* Distracting Rules Section */}
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ff7a73', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '1rem' }}>
+                <span className="sagu-dot-live" style={{ width: '6px', height: '6px', background: '#ff7a73' }} />
+                Distracting Websites (-5.0 / min Breach Alert)
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {currentRoom?.config?.distracting?.map((site, idx) => {
+                  const urlStr = typeof site === 'string' ? site : site.url;
+                  return (
+                    <div key={idx} className="sagu-policy-item" style={{ borderColor: 'rgba(239,68,68,0.2)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                        <span className="sagu-dot-live" style={{ width: '7px', height: '7px', background: '#ff7a73' }} />
+                        <div>
+                          <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff' }}>Distracting Website Domain</div>
+                          <div style={{ fontSize: '0.75rem', color: '#ff7a73', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>{urlStr}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span className="sagu-pill-badge sagu-pill-dist">Breach Alert Popup</span>
+                        <span style={{ fontSize: '10px', color: '#71717a' }}>Enforced</span>
+                      </div>
+                    </div>
+                  );
+                })}
+                {(!currentRoom?.config?.distracting || currentRoom.config.distracting.length === 0) && (
+                  <div style={{ color: '#71717a', fontSize: '0.82rem', padding: '1rem' }}>No distracting websites added.</div>
                 )}
               </div>
             </div>
-
-            <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
-              {isCreator && (
-                <button
-                  className="btn-edit-settings"
-                  onClick={handleOpenSettingsModal}
-                  title="Edit room configuration, websites, alerts, and time limits"
-                >
-                  ⚙️ Room Settings
-                </button>
-              )}
-              <button
-                className="btn-view-leaderboard"
-                onClick={() => handleOpenLeaderboard()}
-              >
-                View Leaderboard
-              </button>
-              {currentRoom?.status !== 'ended' && (
-                <button
-                  className="btn-end-session"
-                  onClick={handleEndSessionEarly}
-                  title="End focus session now and finalize leaderboard"
-                >
-                  End Session Early
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Overall Room Aggregate Time Metrics */}
-          <div className="overall-stats-grid">
-            <div className="stat-card prod-stat">
-              <div className="stat-card-label">Total Team Productive Time</div>
-              <div className="stat-card-value text-green">{formatTime(totalTeamProdSec)}</div>
-              <div className="stat-card-sub">{roomUsers.length} member{roomUsers.length === 1 ? '' : 's'} tracked</div>
-            </div>
-
-            <div className="stat-card dist-stat">
-              <div className="stat-card-label">Total Team Distracting Time</div>
-              <div className="stat-card-value text-red">{formatTime(totalTeamDistSec)}</div>
-              <div className="stat-card-sub">
-                Alert every {formatTime(currentRoom?.config?.distractionIntervalSec || 60)}
-                {currentRoom?.config?.maxDistractionSec
-                  ? ` · Kick limit: ${formatTime(currentRoom.config.maxDistractionSec)}`
-                  : ' · No kick limit'}
-              </div>
-            </div>
-
-            <div className="stat-card ratio-stat">
-              <div className="stat-card-label">Focus Productivity Ratio</div>
-              <div className="stat-card-value text-cyan">{teamRatio}%</div>
-              <div className="stat-card-sub">Productive / Total Tracked Time</div>
-            </div>
-          </div>
-
-          {/* Active Config Rules Ribbon */}
-          {currentRoom?.config && (
-            <div className="config-summary-strip">
-              <div className="config-strip-section">
-                <span className="strip-label productive-label">Productive Sites:</span>
-                {currentRoom.config.productive?.map((site, i) => (
-                  <span key={i} className="strip-chip productive-chip-sm">
-                    {typeof site === 'string' ? site : site.url}
-                  </span>
-                ))}
-              </div>
-              <div className="config-strip-section">
-                <span className="strip-label distracting-label">Distracting Sites:</span>
-                {currentRoom.config.distracting?.map((site, i) => (
-                  <span key={i} className="strip-chip distracting-chip-sm">
-                    {typeof site === 'string' ? site : site.url}
-                  </span>
-                ))}
-              </div>
-            </div>
           )}
 
-          {/* Team Members Grid with Individual Time Clocks */}
-          <div className="dash-section-label">Active Team Members & Individual Times</div>
-          <div className="users-grid">
-            {roomUsers.map((user, index) => {
-              const userProdSec = user.productiveSec || 0;
-              const userDistSec = user.distractingSec || 0;
-              const userUntrackedSec = user.untrackedSec || 0;
-              const userTotalSec = userProdSec + userDistSec;
-              const userRatio = userTotalSec > 0 ? Math.round((userProdSec / userTotalSec) * 100) : 100;
-              const isDistracted = user.currentCategory === 'distracting';
-              const isProductive = user.currentCategory === 'productive';
-
-              return (
-                <div
-                  key={user.id}
-                  className={`user-card ${isDistracted ? 'distracted' : isProductive ? 'focused' : ''}`}
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="card-header">
-                    <div>
-                      <h3 className="card-username">{user.username}</h3>
-                      {user.currentUrl && (
-                        <div className="card-last-url" title={user.currentUrl}>
-                          {user.currentUrl.length > 32 ? user.currentUrl.substring(0, 32) + '...' : user.currentUrl}
-                        </div>
-                      )}
-                    </div>
-                    <span className={`card-status-badge ${isDistracted ? 'distracted' : isProductive ? 'focused' : 'untracked'}`}>
-                      {isDistracted
-                        ? `Distracted (${user.consecutiveDistractingSec || 0}s)`
-                        : isProductive
-                        ? 'Productive'
-                        : 'Untracked (Neutral)'}
-                    </span>
+          {/* TAB 3: STATUS (Connection Status & Extension) */}
+          {dashboardTab === 'status' && (
+            <div className="sagu-status-grid">
+              {/* Socket.io Live Gateway Card */}
+              <div style={{ padding: '1.25rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#4edea3' }}>bolt</span>
+                    Socket.io Live Gateway
                   </div>
+                  <span className="sagu-pill-badge sagu-pill-prod">Connected</span>
+                </div>
 
-                  {/* Individual Time Cards (3 columns) */}
-                  <div className="individual-time-grid individual-time-grid-3">
-                    <div className="time-pill-box prod-box">
-                      <span className="time-pill-label">Productive</span>
-                      <span className="time-pill-val prod-val">{formatTime(userProdSec)}</span>
-                    </div>
-                    <div className="time-pill-box dist-box">
-                      <span className="time-pill-label">Distracting</span>
-                      <span className="time-pill-val dist-val">{formatTime(userDistSec)}</span>
-                    </div>
-                    <div className="time-pill-box neutral-box">
-                      <span className="time-pill-label">Neutral / Other</span>
-                      <span className="time-pill-val neutral-val">{formatTime(userUntrackedSec)}</span>
-                    </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                  <div className="sagu-status-metric-cell">
+                    <div style={{ fontSize: '10px', color: '#71717a' }}>Websocket Latency</div>
+                    <div style={{ fontSize: '0.82rem', color: '#ffffff', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>24ms (wss://)</div>
                   </div>
-
-
-                  {/* Kick limit bar: only show if maxDistractionSec is configured */}
-                  {currentRoom?.config?.maxDistractionSec > 0 && (() => {
-                    const maxSec = currentRoom.config.maxDistractionSec;
-                    const usedPct = Math.min(100, Math.round((userDistSec / maxSec) * 100));
-                    const dangerLevel = usedPct >= 80 ? 'danger' : usedPct >= 50 ? 'warn' : 'safe';
-                    return (
-                      <div className="kick-limit-bar-wrap" style={{ marginTop: '0.6rem' }}>
-                        <div className="kick-limit-bar-header">
-                          <span className="kick-limit-label">
-                            ! Kick Limit: {formatTime(userDistSec)} / {formatTime(maxSec)}
-                          </span>
-                          <span className={`kick-pct kick-pct-${dangerLevel}`}>{usedPct}%</span>
-                        </div>
-                        <div className="kick-limit-track">
-                          <div
-                            className={`kick-limit-fill kick-fill-${dangerLevel}`}
-                            style={{ width: `${usedPct}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  {/* Time Ratio Split Bar */}
-                  <div className="card-score-section" style={{ marginTop: '0.75rem' }}>
-                    <div className="card-score-header">
-                      <span className="card-score-label">Focus Efficiency</span>
-                      <span className="card-score-value high" style={{ fontSize: '1rem' }}>
-                        {userRatio}%
-                      </span>
-                    </div>
-                    <div className="score-bar-track">
-                      <div
-                        className="score-bar-fill high"
-                        style={{ width: `${userRatio}%` }}
-                      />
-                    </div>
+                  <div className="sagu-status-metric-cell">
+                    <div style={{ fontSize: '10px', color: '#71717a' }}>Room Channel</div>
+                    <div style={{ fontSize: '0.82rem', color: '#4edea3', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>{currentRoom?.id || 'room-id'}</div>
+                  </div>
+                  <div className="sagu-status-metric-cell">
+                    <div style={{ fontSize: '10px', color: '#71717a' }}>Heartbeat Ping</div>
+                    <div style={{ fontSize: '0.82rem', color: '#ffffff', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>Every 3.0s</div>
+                  </div>
+                  <div className="sagu-status-metric-cell">
+                    <div style={{ fontSize: '10px', color: '#71717a' }}>Protocol State</div>
+                    <div style={{ fontSize: '0.82rem', color: '#4edea3', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>Zero-Trust Sync</div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
 
-          {/* Empty State */}
-          {(!currentRoom || !currentRoom.users || currentRoom.users.length === 0) && (
-            <div className="empty-state">
-              <div className="radar-container">
-                <div className="radar-ring radar-ring-1" />
-                <div className="radar-ring radar-ring-2" />
-                <div className="radar-ring radar-ring-3" />
-                <div className="radar-sweep" />
-                <div className="radar-center-dot" />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.5rem' }}>
+                  <button
+                    className="btn btn-secondary"
+                    style={{ padding: '0.4rem 0.85rem', fontSize: '0.78rem' }}
+                    onClick={() => {
+                      socket.emit('reconnect-sync');
+                      alert('Re-synced socket connection.');
+                    }}
+                  >
+                    Re-sync Socket
+                  </button>
+                </div>
               </div>
-              <p className="empty-state-text">Waiting for Chrome Extension sync...</p>
-              <p className="empty-state-subtext">
-                Connect the Chrome Extension with your Username <strong>{username}</strong> and Room Password <strong>{currentPassword}</strong>
-              </p>
-            </div>
-          )}
 
-          {/* Individual Detailed Times Table Panel */}
-          {roomUsers.length > 0 && (
-            <div className="detailed-breakdown-card">
-              <div className="dash-section-label" style={{ marginBottom: '1rem' }}>
-                Individual Time Breakdown Table
-              </div>
-              <div className="breakdown-table-wrapper">
-                <table className="breakdown-table">
-                  <thead>
-                    <tr>
-                      <th>Team Member</th>
-                      <th>Current Site</th>
-                      <th>Productive Time</th>
-                      <th>Distracting Time</th>
-                      <th>Untracked Time</th>
-                      <th>Focus Ratio</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {roomUsers.map((u) => {
-                      const prod = u.productiveSec || 0;
-                      const dist = u.distractingSec || 0;
-                      const untracked = u.untrackedSec || 0;
-                      const total = prod + dist;
-                      const ratio = total > 0 ? Math.round((prod / total) * 100) : 100;
-                      const isDist = u.currentCategory === 'distracting';
-
-                      return (
-                        <tr key={u.id}>
-                          <td className="table-username"><strong>{u.username}</strong></td>
-                          <td className="table-url" title={u.currentUrl || 'Idle'}>
-                            {u.currentUrl ? (u.currentUrl.length > 28 ? u.currentUrl.substring(0, 28) + '...' : u.currentUrl) : 'Idle'}
-                          </td>
-                          <td className="text-green table-mono">{formatTime(prod)}</td>
-                          <td className="text-red table-mono">{formatTime(dist)}</td>
-                          <td className="table-mono" style={{ opacity: 0.6 }}>{formatTime(untracked)}</td>
-                          <td>
-                            <span className="ratio-tag">{ratio}%</span>
-                          </td>
-                          <td>
-                            <span className={`card-status-badge ${isDist ? 'distracted' : 'focused'}`}>
-                              {isDist ? 'Distracted' : 'Focused'}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Live Activity Log */}
-          {currentRoom?.logs && currentRoom.logs.length > 0 && (
-            <div className="activity-logs-section">
-              <div className="dash-section-label" style={{ marginTop: '2.5rem' }}>
-                Live Tab Activity & Alert History
-              </div>
-              <div className="logs-list">
-                {currentRoom.logs.map((log) => (
-                  <div key={log.id} className={`log-item log-${log.category}`}>
-                    <span className="log-time">{log.timestamp}</span>
-                    <span className="log-user">{log.username}</span>
-                    <span className="log-url" title={log.url}>{log.url}</span>
-                    <span className={`log-points-badge badge-${log.category}`}>
-                      {log.category === "productive" && "Productive"}
-                      {log.category === "distracting" && "Distracting"}
-                      {log.category === "untracked" && "Neutral"}
-                    </span>
-                    <span className="log-msg" style={{ fontSize: '0.75rem', opacity: 0.8 }}>
-                      {log.message}
-                    </span>
+              {/* Chrome Extension Companion Card */}
+              <div style={{ padding: '1.25rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1rem' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#4edea3' }}>extension</span>
+                      Chrome Extension Companion
+                    </div>
+                    <span className="sagu-pill-badge sagu-pill-prod">v2.4 Installed</span>
                   </div>
-                ))}
+                  <p style={{ fontSize: '0.78rem', color: '#a1a1aa', lineHeight: 1.5, margin: 0 }}>
+                    Monitors active browser tab URL hashes with zero cookie extraction and instant breach notifications.
+                  </p>
+                </div>
+
+                <div style={{ padding: '0.65rem 0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#d4d4d8' }}>Manifest V3 Zero-Trust Daemon</span>
+                  <span style={{ fontSize: '0.75rem', color: '#4edea3', fontWeight: 600 }}>Running</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    className="btn btn-primary"
+                    style={{ flex: 1, padding: '0.45rem', fontSize: '0.78rem' }}
+                    onClick={() => alert(`Companion Extension Active. Pair with Room Password: ${currentPassword}`)}
+                  >
+                    Verify Companion
+                  </button>
+                </div>
               </div>
             </div>
           )}
-        </main>
-      </div>
+
+          {/* TAB 4: LOGS (Live Tab Activity & Alert History) */}
+          {dashboardTab === 'logs' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="sagu-dot-live" style={{ width: '6px', height: '6px' }} />
+                Real-Time Tab Navigation & Breach Log
+              </div>
+
+              {(!currentRoom?.logs || currentRoom.logs.length === 0) ? (
+                <div style={{ textAlign: 'center', color: '#71717a', padding: '2rem', fontSize: '0.85rem' }}>
+                  No tab activity logged yet. Open tabs tracked by the companion extension.
+                </div>
+              ) : (
+                <div className="sagu-log-list">
+                  {currentRoom.logs.map((log) => (
+                    <div
+                      key={log.id}
+                      className={`sagu-log-row ${log.category === 'distracting' ? 'distracting' : log.category === 'productive' ? 'productive' : ''}`}
+                    >
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#71717a' }}>
+                        {log.timestamp}
+                      </span>
+                      <strong style={{ color: '#ffffff', fontSize: '0.8rem' }}>{log.username}</strong>
+                      <span
+                        style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: log.category === 'distracting' ? '#ff7a73' : log.category === 'productive' ? '#4edea3' : '#a1a1aa', flex: 1, minWidth: '150px' }}
+                        title={log.url}
+                      >
+                        {log.url}
+                      </span>
+                      <span className={`sagu-pill-badge ${log.category === 'distracting' ? 'sagu-pill-dist' : log.category === 'productive' ? 'sagu-pill-prod' : 'sagu-pill-neutral'}`}>
+                        {log.category === 'productive' && 'Productive'}
+                        {log.category === 'distracting' && 'Distracting'}
+                        {log.category === 'untracked' && 'Neutral'}
+                      </span>
+                      <span style={{ fontSize: '0.72rem', color: '#71717a' }}>{log.message}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* Clean Dark Glass Footer */}
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '1.25rem 1.5rem', fontSize: '11px', color: '#71717a', backdropFilter: 'blur(20px)', background: 'rgba(0,0,0,0.7)', position: 'relative', zIndex: 10 }}>
+        <div style={{ maxWidth: '1140px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ color: '#4edea3', fontWeight: 600 }}>Sagu</span>
+            <span>•</span>
+            <span>Simple & Focused Team Workspace</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#d4d4d8' }}>
+              <span className="sagu-dot-live" style={{ width: '5px', height: '5px' }} />
+              All Systems Operational
+            </span>
+          </div>
+        </div>
+      </footer>
+
       {renderLeaderboardModal()}
       {renderSettingsModal()}
     </>

@@ -1,4 +1,4 @@
-// Zero-Trust Focus Platform - Content Script for Instant Auto-Sync
+// Sagu Zero-Trust Sync Platform - Content Script for Instant Auto-Sync
 (function () {
   function syncSession() {
     try {
@@ -8,7 +8,7 @@
         if (session.username && session.roomId) {
           chrome.storage.local.get(['username', 'roomId'], (current) => {
             if (current.username !== session.username || current.roomId !== session.roomId) {
-              console.log('[Zero-Trust Sync] Auto-syncing session from Web App:', session.username, session.roomId);
+              console.log('[Sagu Sync] Auto-syncing session from Web App:', session.username, session.roomId);
               chrome.storage.local.set({
                 username: session.username,
                 roomId: session.roomId

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Zero-Trust Focus",
+  "name": "Sagu - Zero-Trust Focus",
   "version": "1.1",
-  "description": "Monitors active tabs and communicates with Zero-Trust Focus Platform.",
+  "description": "Monitors active tabs and communicates with Sagu Zero-Trust Focus Platform.",
   "permissions": [
     "tabs",
     "storage",

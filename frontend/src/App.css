@@ -2241,38 +2241,57 @@
 }
 
 .btn-end-session {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #ef4444;
-  padding: 0.45rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  padding: 0.38rem 0.85rem;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
 }
 
 .btn-end-session:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.24);
+  border-color: rgba(248, 113, 113, 0.65);
+  color: #ffffff;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.35);
   transform: translateY(-1px);
 }
 
 .btn-view-leaderboard {
-  background: linear-gradient(135deg, #06d6a0, #059669);
-  color: #0a0e1a;
-  padding: 0.45rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(6, 214, 160, 0.12);
+  border: 1px solid rgba(6, 214, 160, 0.35);
+  color: #4edea3;
+  padding: 0.38rem 0.85rem;
   border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  border: none;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(6, 214, 160, 0.3);
-  transition: all 0.2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
 }
 
 .btn-view-leaderboard:hover {
+  background: rgba(6, 214, 160, 0.24);
+  border-color: rgba(78, 222, 163, 0.65);
+  color: #ffffff;
+  box-shadow: 0 0 18px rgba(6, 214, 160, 0.35);
   transform: translateY(-1px);
-  box-shadow: 0 0 18px rgba(6, 214, 160, 0.5);
 }
 
 /* --- Leaderboard Modal --- */
@@ -2280,9 +2299,9 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(10, 14, 26, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2295,10 +2314,12 @@
   max-width: 820px;
   max-height: 90vh;
   overflow-y: auto;
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  background: rgba(12, 15, 24, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(6, 214, 160, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(6, 214, 160, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.15);
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -2497,22 +2518,27 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  color: #ffffff;
-  padding: 0.45rem 1rem;
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  color: #38bdf8;
+  padding: 0.38rem 0.85rem;
   border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  border: none;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 0 14px rgba(14, 165, 233, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
 }
 
 .btn-edit-settings:hover {
+  background: rgba(14, 165, 233, 0.24);
+  border-color: rgba(56, 189, 248, 0.65);
+  color: #ffffff;
+  box-shadow: 0 0 18px rgba(14, 165, 233, 0.35);
   transform: translateY(-1px);
-  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-  box-shadow: 0 0 20px rgba(14, 165, 233, 0.6);
 }
 
 .btn-strip-edit {
@@ -2525,6 +2551,7 @@
   font-size: 0.76rem;
   font-weight: 700;
   cursor: pointer;
+  backdrop-filter: blur(8px);
   transition: all 0.2s ease;
   white-space: nowrap;
 }
@@ -2574,16 +2601,1261 @@
 }
 
 .btn-save-settings {
-  background: linear-gradient(135deg, #06d6a0, #059669);
-  color: #0a0e1a;
-  font-weight: 800;
-  box-shadow: 0 0 14px rgba(6, 214, 160, 0.35);
+  background: rgba(6, 214, 160, 0.18);
+  border: 1px solid rgba(6, 214, 160, 0.45);
+  color: #4edea3;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 15px rgba(6, 214, 160, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
 }
 
 .btn-save-settings:hover:not(:disabled) {
-  box-shadow: 0 0 22px rgba(6, 214, 160, 0.6);
+  background: rgba(6, 214, 160, 0.28);
+  border-color: #4edea3;
+  color: #ffffff;
+  box-shadow: 0 0 22px rgba(6, 214, 160, 0.4);
   transform: translateY(-1px);
 }
 
+/* ---------------------------------------------------------------
+   SAGU DEEP FOCUS DESIGN SYSTEM (STITCH PROJECT 3314208514770998316)
+   --------------------------------------------------------------- */
 
+/* --- Cinematic Slideshow Viewport --- */
+.slideshow-viewport {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #0a0a0a;
+}
+
+.slide-item {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;
+  will-change: opacity;
+}
+
+.slide-item.active {
+  opacity: 0.95;
+  filter: contrast(1.04) saturate(1.08);
+}
+
+.slideshow-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.12) 55%, rgba(10, 10, 14, 0.45) 100%);
+  transition: background 0.4s ease;
+}
+
+/* --- Sagu Sticky Glass Header --- */
+.sagu-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  width: 100%;
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  background: rgba(10, 12, 18, 0.42);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
+  transition: all 0.2s ease;
+}
+
+.sagu-header-inner {
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem;
+  min-height: 3.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sagu-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.sagu-header-divider {
+  height: 14px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.sagu-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.sagu-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sagu-logo-badge {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4edea3;
+  font-weight: 800;
+  font-size: 0.95rem;
+  box-shadow: 0 0 14px rgba(78, 222, 163, 0.25);
+  transition: all 0.2s ease;
+}
+
+.sagu-brand-link:hover .sagu-logo-badge {
+  border-color: rgba(78, 222, 163, 0.5);
+  box-shadow: 0 0 20px rgba(78, 222, 163, 0.4);
+}
+
+.sagu-brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.sagu-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 0.75rem;
+  color: #d4d4d8;
+  white-space: nowrap;
+}
+
+.sagu-live-tag {
+  font-size: 11px;
+  color: #4edea3;
+  font-weight: 600;
+}
+
+.sagu-pill-sep {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.sagu-pill-btn {
+  background: none;
+  border: none;
+  color: #d4d4d8;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono, monospace);
+  transition: color 0.15s ease;
+}
+
+.sagu-pill-btn:hover {
+  color: #ffffff;
+}
+
+.sagu-pill-subbtn {
+  background: none;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  padding: 0 2px;
+  font: inherit;
+  font-size: 11px;
+  transition: color 0.15s ease;
+}
+
+.sagu-pill-subbtn:hover {
+  color: #4edea3;
+}
+
+.sagu-creator-badge {
+  font-size: 10px;
+  padding: 0.12rem 0.48rem;
+  border-radius: 9999px;
+  background: rgba(78, 222, 163, 0.14);
+  border: 1px solid rgba(78, 222, 163, 0.25);
+  color: #4edea3;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.sagu-dot-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4edea3;
+  box-shadow: 0 0 8px #4edea3;
+  animation: pulse 2s infinite;
+}
+
+.sagu-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sagu-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.38rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a1a1aa;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.sagu-nav-btn.active, .sagu-nav-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.sagu-exit-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #d4d4d8;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sagu-exit-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.sagu-avatar-pill {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(78, 222, 163, 0.25), rgba(78, 222, 163, 0.08));
+  border: 1px solid rgba(78, 222, 163, 0.4);
+  color: #4edea3;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(78, 222, 163, 0.2);
+}
+
+/* --- Sagu Hero Statement --- */
+.sagu-hero-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .sagu-hero-row {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.sagu-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(78, 222, 163, 0.35);
+  color: #4edea3;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(78, 222, 163, 0.15);
+}
+
+.sagu-hero-title {
+  font-size: 2rem;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+  margin: 0.35rem 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
+  line-height: 1.25;
+}
+
+.sagu-hero-title strong {
+  font-weight: 700;
+  background: linear-gradient(to right, #ffffff, #4edea3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sagu-hero-desc {
+  font-size: 0.84rem;
+  color: #a1a1aa;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 32rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.sagu-hero-cards {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sagu-score-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1.15rem;
+  border-radius: 14px;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background: rgba(12, 14, 22, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+/* --- Unified Horizontal Metric Bar --- */
+.sagu-metric-bar {
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  background: rgba(12, 14, 22, 0.36);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.sagu-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .sagu-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .sagu-metric-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.sagu-metric-col {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 1024px) {
+  .sagu-metric-col {
+    border-bottom: none;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .sagu-metric-col:last-child {
+    border-right: none;
+  }
+}
+
+.sagu-metric-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #71717a;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sagu-metric-val {
+  font-size: 1.55rem;
+  font-weight: 300;
+  color: #ffffff;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.sagu-metric-sub {
+  font-size: 0.72rem;
+  color: #a1a1aa;
+  margin-top: 0.25rem;
+}
+
+.sagu-metric-progress {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  margin-top: 0.75rem;
+  overflow: hidden;
+}
+
+.sagu-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #4edea3);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* --- Unified Lower Section Enclosure --- */
+.sagu-panel-enclosure {
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  background: rgba(12, 14, 22, 0.36);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sagu-panel-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .sagu-panel-top {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.sagu-segmented-tabs {
+  display: inline-flex;
+  padding: 0.25rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.sagu-tab-item {
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #71717a;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sagu-tab-item.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sagu-tab-item:hover:not(.active) {
+  color: #d4d4d8;
+}
+
+/* --- Sagu Peer Member Cards --- */
+.sagu-peers-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .sagu-peers-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .sagu-peers-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.sagu-peer-card {
+  padding: 1.15rem;
+  border-radius: 14px;
+  background: rgba(14, 16, 26, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 12.5rem;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sagu-peer-card:hover {
+  background: rgba(22, 26, 40, 0.52);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+}
+
+.sagu-peer-card.is-distracted {
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.sagu-peer-card.is-distracted::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #ef4444;
+}
+
+.sagu-peer-avatar {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.avatar-prod {
+  background: rgba(78, 222, 163, 0.15);
+  border: 1px solid rgba(78, 222, 163, 0.35);
+  color: #4edea3;
+}
+
+.avatar-dist {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ff7a73;
+}
+
+.avatar-neutral {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.sagu-url-preview {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: #d4d4d8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.25rem;
+}
+
+/* --- Sagu Auth Form (Login/Register/Forgot/OTP) --- */
+.sagu-auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.sagu-auth-card {
+  width: 100%;
+  max-width: 440px;
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  background: rgba(12, 14, 22, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  padding: 2.25rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 0 40px rgba(78, 222, 163, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+/* --- Sagu Hub & Setup Layouts --- */
+.sagu-canvas-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.sagu-hub-glass-card {
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  background: rgba(12, 14, 22, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 1.6rem 1.75rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+.sagu-resume-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(78, 222, 163, 0.08));
+  border: 1px solid rgba(78, 222, 163, 0.35);
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 25px rgba(78, 222, 163, 0.1);
+}
+
+.sagu-rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .sagu-rooms-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .sagu-rooms-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.sagu-room-card {
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  background: rgba(14, 16, 26, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 18px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.15rem;
+  transition: all 0.25s ease;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sagu-room-card:hover {
+  background: rgba(22, 26, 40, 0.55);
+  border-color: rgba(78, 222, 163, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(78, 222, 163, 0.15);
+}
+
+.sagu-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.sagu-pill-prod {
+  background: rgba(78, 222, 163, 0.12);
+  border: 1px solid rgba(78, 222, 163, 0.3);
+  color: #4edea3;
+}
+
+.sagu-pill-dist {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ff7a73;
+}
+
+.sagu-pill-neutral {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #d4d4d8;
+}
+
+/* Sagu Policies & Rules List */
+.sagu-policy-item {
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .sagu-policy-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.sagu-policy-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Sagu Connection Status Grid */
+.sagu-status-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .sagu-status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sagu-status-metric-cell {
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Sagu Activity Logs */
+.sagu-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.sagu-log-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0.95rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+}
+
+.sagu-log-row.distracting {
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.sagu-log-row.productive {
+  border-color: rgba(78, 222, 163, 0.2);
+  background: rgba(78, 222, 163, 0.04);
+}
+
+/* Sagu Setup Form Card */
+.sagu-setup-card {
+  max-width: 820px;
+  margin: 0 auto;
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  background: rgba(12, 14, 22, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
+  padding: 2.25rem;
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Sagu History Card */
+.sagu-history-row {
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  background: rgba(14, 16, 26, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 1.15rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.sagu-history-row:hover {
+  border-color: rgba(78, 222, 163, 0.35);
+  background: rgba(22, 26, 40, 0.52);
+  transform: translateY(-2px);
+}
+
+/* --- Theme Toggle Button --- */
+.sagu-theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f4f4f5;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  font-family: inherit;
+}
+
+.sagu-theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+/* --- Complete Sagu Light Mode Overrides --- */
+html.light body {
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+html.light .slideshow-viewport {
+  background-color: #e4e4e7;
+}
+
+html.light .slide-item.active {
+  opacity: 0.75;
+  filter: brightness(1.1) contrast(1.05);
+}
+
+html.light .slideshow-vignette {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, rgba(244, 244, 245, 0.55) 60%, rgba(228, 228, 231, 0.82) 100%);
+}
+
+html.light .sagu-theme-toggle-btn {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #18181b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+html.light .sagu-theme-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+html.light .sagu-header {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+html.light .sagu-logo-badge {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+html.light .sagu-live-pill {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  color: #3f3f46;
+}
+
+html.light .sagu-nav-btn {
+  color: #52525b;
+}
+
+html.light .sagu-nav-btn:hover,
+html.light .sagu-nav-btn.active {
+  color: #09090b;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+html.light .sagu-mode-pill {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #059669;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+html.light .sagu-hero-title {
+  color: #09090b;
+  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.8);
+}
+
+html.light .sagu-hero-title strong {
+  background: linear-gradient(to right, #09090b, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+html.light .sagu-hero-desc {
+  color: #3f3f46;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.8);
+}
+
+html.light .sagu-score-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+}
+
+html.light .sagu-score-card span,
+html.light .sagu-score-card div {
+  color: #09090b;
+}
+
+html.light .sagu-metric-bar {
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+html.light .sagu-metric-col {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light .sagu-metric-header {
+  color: #71717a;
+}
+
+html.light .sagu-metric-val {
+  color: #09090b;
+  text-shadow: none;
+}
+
+html.light .sagu-metric-sub {
+  color: #52525b;
+}
+
+html.light .sagu-metric-progress {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+html.light .sagu-panel-enclosure {
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+html.light .sagu-panel-top {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light .sagu-segmented-tabs {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+html.light .sagu-tab-item {
+  color: #52525b;
+}
+
+html.light .sagu-tab-item.active {
+  background: #ffffff;
+  color: #09090b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+html.light .sagu-peer-card {
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+html.light .sagu-peer-card:hover {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+html.light .sagu-peer-card div {
+  color: #09090b;
+}
+
+html.light .sagu-url-preview {
+  color: #3f3f46;
+}
+
+html.light .sagu-hub-glass-card,
+html.light .sagu-setup-card,
+html.light .sagu-auth-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.1);
+  color: #09090b;
+}
+
+html.light .sagu-room-card {
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+html.light .sagu-room-card:hover {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+html.light .sagu-history-row {
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+html.light .sagu-history-row:hover {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+html.light .input-field {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  color: #09090b;
+}
+
+html.light .input-field::placeholder {
+  color: #a1a1aa;
+}
+
+html.light .input-field:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+html.light .btn-secondary {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.14);
+  color: #18181b;
+}
+
+html.light .btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #000000;
+}
+
+html.light .breakdown-table th {
+  color: #52525b;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+html.light .breakdown-table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: #18181b;
+}
+
+html.light .sagu-policy-item {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+html.light .sagu-log-row {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  color: #18181b;
+}
+
+html.light .sagu-status-metric-cell {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+html.light .leaderboard-modal-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #09090b;
+}
+
+html.light .config-section {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+html.light .btn-edit-settings {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.35);
+  color: #0284c7;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);
+}
+
+html.light .btn-edit-settings:hover {
+  background: rgba(14, 165, 233, 0.22);
+  border-color: #0284c7;
+  color: #0369a1;
+}
+
+html.light .btn-view-leaderboard {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #059669;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+}
+
+html.light .btn-view-leaderboard:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #059669;
+  color: #047857;
+}
+
+html.light .btn-end-session {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #dc2626;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+}
+
+html.light .btn-end-session:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #dc2626;
+  color: #b91c1c;
+}
+
+html.light .sagu-exit-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #3f3f46;
+}
+
+html.light .sagu-exit-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #18181b;
+}
+
+html.light .btn-save-settings {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #059669;
+}
+
+html.light .btn-save-settings:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #059669;
+  color: #047857;
+}
+
+html.light .sagu-header-divider {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+html.light .sagu-pill-btn {
+  color: #3f3f46;
+}
+
+html.light .sagu-pill-btn:hover {
+  color: #09090b;
+}
+
+html.light .sagu-pill-sep {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 1080px) {
+  .sagu-header-inner {
+    padding: 0.5rem 1rem;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .sagu-header-inner {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 3.75rem;
+    padding: 0.6rem 1rem;
+    gap: 0.65rem;
+  }
+  .sagu-header-left {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .sagu-header-right {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
 
