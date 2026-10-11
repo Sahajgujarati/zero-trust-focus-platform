@@ -1,10 +1,11 @@
-# Zero-Trust Focus Platform
+# Sagu – Zero-Trust Focus Platform
 
 A real-time productivity monitoring ecosystem utilizing a microservices pipeline to classify active tab browsing behavior against dynamic focus categorizations.
 
 ## Demo
 
-https://github.com/user-attachments/assets/a6da98ae-c3d2-4499-9273-bd120c0d44ff
+https://raw.githubusercontent.com/Sahajgujarati/zero-trust-focus-platform/main/Screen%20Recording%202026-10-12%20015555.mp4
+
 ## Architecture
 
 This project has been designed with simplicity in mind so that you can run it immediately without complex environment setups (like Postgres or Redis). 
