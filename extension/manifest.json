@@ -6,7 +6,9 @@
   "permissions": [
     "tabs",
     "storage",
-    "notifications"
+    "notifications",
+    "offscreen",
+    "alarms"
   ],
   "host_permissions": [
     "http://localhost:4000/*",
@@ -23,5 +25,18 @@
       "48": "icon48.png",
       "128": "icon128.png"
     }
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

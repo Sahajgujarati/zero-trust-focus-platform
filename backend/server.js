@@ -2,6 +2,9 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const fs = require('fs');
 const path = require('path');
@@ -18,12 +21,15 @@ const io = new Server(server, {
   }
 });
 
-// ── Database with local file persistence ──
+// -- Database with local file persistence --
 const DB_FILE = path.join(__dirname, 'db.json');
 let db = {
   rooms: {},
   users: {},
   logs: {},
+  history: {},
+  accounts: {}, // email/username -> { passwordHash, email, username, createdAt }
+  otps: {},    // email -> { code, expiresAt }
 };
 
 try {
@@ -34,6 +40,9 @@ try {
       db.rooms = parsed.rooms || {};
       db.users = parsed.users || {};
       db.logs = parsed.logs || {};
+      db.history = parsed.history || {};
+      db.accounts = parsed.accounts || {};
+      db.otps = {}; // never persist OTPs
       console.log(`[Storage] Loaded ${Object.keys(db.rooms).length} saved rooms from db.json`);
     }
   }
@@ -113,6 +122,57 @@ function findRoom(identifier) {
   ) || null;
 }
 
+// Helper: Ensure a user is only in ONE active room at a time by leaving any other active rooms
+function leaveUserFromRooms(username, newRoomIdToKeep = null) {
+  if (!username) return;
+  const usernameLower = username.trim().toLowerCase();
+  const now = Date.now();
+  let leftAny = false;
+
+  Object.values(db.rooms).forEach(room => {
+    if (room.id !== newRoomIdToKeep && Array.isArray(room.users)) {
+      const initialCount = room.users.length;
+      room.users = room.users.filter(uid => {
+        const u = db.users[uid];
+        return !u || u.username.toLowerCase() !== usernameLower;
+      });
+
+      if (room.users.length !== initialCount) {
+        leftAny = true;
+        console.log(`[Room Leave] User "${username}" left room "${room.name}" (${room.id})`);
+
+        // Record leftAt in user history
+        if (db.history[usernameLower]) {
+          db.history[usernameLower].forEach(h => {
+            if (h.roomId === room.id && !h.leftAt) {
+              h.leftAt = now;
+            }
+          });
+        }
+
+        // Broadcast updated room data to remaining members of old room
+        const remainingSec = room.endsAt ? Math.max(0, Math.round((room.endsAt - now) / 1000)) : null;
+        io.to(room.id).emit('room_update', {
+          id: room.id,
+          name: room.name,
+          status: room.status || 'active',
+          endsAt: room.endsAt,
+          lifetimeSec: room.lifetimeSec,
+          remainingSec: remainingSec,
+          config: room.config,
+          users: room.users.map(id => db.users[id]).filter(Boolean),
+          logs: db.logs[room.id] || []
+        });
+      }
+    }
+  });
+
+  if (leftAny) {
+    saveDb();
+    io.emit('rooms_list_update');
+  }
+}
+
 // Helper: Format seconds to readable time string (days, hrs, mins, secs)
 function formatMaxTime(secs) {
   if (!secs || secs <= 0) return '0s';
@@ -128,19 +188,122 @@ function formatMaxTime(secs) {
   return parts.length > 0 ? parts.join(' ') : '0s';
 }
 
-// ─── ROOMS API ────────────────────────────────────────────────────────────────
+// Helper: Compute Leaderboard for a room
+// "the person who is has more productive time wins always"
+function computeLeaderboard(room) {
+  if (!room) return [];
+  const roomUsers = (room.users || []).map(uId => db.users[uId]).filter(Boolean);
+
+  // Sort primarily by productiveSec DESCENDING (more productive wins always)
+  // Tie-breaker: distractingSec ASCENDING (fewer distractions is better)
+  const sorted = [...roomUsers].sort((a, b) => {
+    const prodDiff = (b.productiveSec || 0) - (a.productiveSec || 0);
+    if (prodDiff !== 0) return prodDiff;
+    return (a.distractingSec || 0) - (b.distractingSec || 0);
+  });
+
+  return sorted.map((u, idx) => {
+    const prod = u.productiveSec || 0;
+    const dist = u.distractingSec || 0;
+    const untracked = u.untrackedSec || 0;
+    const total = prod + dist;
+    const ratio = total > 0 ? Math.round((prod / total) * 100) : 100;
+    const rank = idx + 1;
+    const isWinner = rank === 1 && prod > 0;
+
+    return {
+      rank,
+      userId: u.id,
+      username: u.username,
+      productiveSec: prod,
+      distractingSec: dist,
+      untrackedSec: untracked,
+      totalTrackedSec: prod + dist + untracked,
+      productivityRatio: ratio,
+      isWinner,
+      badge: rank === 1 ? '🏆 Winner' : rank === 2 ? '🥈 Runner Up' : rank === 3 ? '🥉 3rd Place' : `#${rank}`
+    };
+  });
+}
+
+// Helper: Check if a room has expired/ended
+function checkRoomExpiration(room) {
+  if (!room) return;
+  if (room.status === 'ended') return;
+
+  if (room.endsAt && Date.now() >= room.endsAt) {
+    room.status = 'ended';
+    room.endedAt = Date.now();
+    room.finalLeaderboard = computeLeaderboard(room);
+
+    console.log(`[Room Ended] 🏁 Room "${room.name}" (${room.id}) has ended! Final winner:`, room.finalLeaderboard[0]?.username || 'None');
+
+    const winnerName = room.finalLeaderboard[0]?.username;
+    const winnerProd = room.finalLeaderboard[0]?.productiveSec || 0;
+    const logEntry = {
+      id: 'log_' + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toLocaleTimeString(),
+      username: 'System',
+      url: '',
+      category: 'productive',
+      alertType: 'session_ended',
+      message: `🏁 Focus session completed! Winner: ${winnerName || 'None'} with ${formatMaxTime(winnerProd)} productive time.`
+    };
+    if (!db.logs[room.id]) db.logs[room.id] = [];
+    db.logs[room.id].unshift(logEntry);
+
+    saveDb();
+
+    // Broadcast room ended and leaderboard
+    io.to(room.id).emit('room_ended', {
+      roomId: room.id,
+      roomName: room.name,
+      finalLeaderboard: room.finalLeaderboard
+    });
+
+    const roomData = {
+      id: room.id,
+      name: room.name,
+      status: room.status,
+      endsAt: room.endsAt,
+      lifetimeSec: room.lifetimeSec,
+      remainingSec: 0,
+      config: room.config,
+      users: room.users.map(id => db.users[id]).filter(Boolean),
+      logs: db.logs[room.id] || [],
+      finalLeaderboard: room.finalLeaderboard
+    };
+    io.to(room.id).emit('room_update', roomData);
+    io.emit('rooms_list_update');
+  }
+}
+
+// Background checker for room lifetime expiration
+setInterval(() => {
+  Object.values(db.rooms).forEach(checkRoomExpiration);
+}, 2000);
+
+// --- ROOMS API ----------------------------------------------------------------
 
 // GET all rooms
 app.get('/api/rooms', (req, res) => {
   const roomsList = Object.values(db.rooms).map(room => {
+    checkRoomExpiration(room);
     const roomUsers = (room.users || []).map(uId => db.users[uId]).filter(Boolean);
     const totalProdSec = roomUsers.reduce((acc, u) => acc + (u.productiveSec || 0), 0);
     const totalDistSec = roomUsers.reduce((acc, u) => acc + (u.distractingSec || 0), 0);
+    const remainingSec = room.endsAt ? Math.max(0, Math.round((room.endsAt - Date.now()) / 1000)) : null;
 
     return {
       id: room.id,
       name: room.name,
+      creator: room.creator || (room.users[0] && db.users[room.users[0]]?.username) || null,
       userCount: roomUsers.length,
+      status: room.status || 'active',
+      lifetimeSec: room.lifetimeSec || null,
+      endsAt: room.endsAt || null,
+      remainingSec: remainingSec,
+      finalLeaderboard: room.finalLeaderboard || (room.status === 'ended' ? computeLeaderboard(room) : null),
       productiveCount: (room.config?.productive || []).length,
       distractingCount: (room.config?.distracting || []).length,
       distractionIntervalSec: room.config?.distractionIntervalSec || 60,
@@ -156,9 +319,10 @@ app.get('/api/rooms', (req, res) => {
 
 // CREATE room
 app.post('/api/rooms', (req, res) => {
-  const { name, password, config } = req.body;
+  const { name, password, config, creator, username } = req.body;
   const roomId = 'room_' + Math.random().toString(36).substr(2, 9);
   const roomPassword = (password && password.trim()) || Math.random().toString(36).substr(2, 6);
+  const roomCreator = (creator || username || '').trim();
 
   const cleanProductive = Array.isArray(config?.productive)
     ? config.productive.map(p => (typeof p === 'string' ? p : p.url || '').trim()).filter(Boolean)
@@ -169,22 +333,29 @@ app.post('/api/rooms', (req, res) => {
     : ['youtube.com', 'instagram.com', 'twitter.com', 'facebook.com', 'reddit.com', 'netflix.com'];
 
   const intervalSec = Number(config?.distractionIntervalSec) > 0 ? Number(config?.distractionIntervalSec) : 60;
-
-  // maxDistractionSec: null means unlimited; positive number = kick after that many seconds of total distracting time
   const maxDistractionSec = Number(config?.maxDistractionSec) > 0 ? Number(config?.maxDistractionSec) : null;
+  const lifetimeSec = Number(config?.lifetimeSec) > 0 ? Number(config?.lifetimeSec) : null;
+  const now = Date.now();
+  const endsAt = lifetimeSec ? (now + lifetimeSec * 1000) : null;
 
   db.rooms[roomId] = {
     id: roomId,
     name: (name && name.trim()) || 'Focus Room',
     password: roomPassword,
+    creator: roomCreator, // Room creator username
     users: [],
     bannedUsers: [], // lowercased usernames permanently banned from this room
     createdAt: new Date(),
+    status: 'active', // 'active' | 'ended'
+    lifetimeSec: lifetimeSec,
+    endsAt: endsAt,
+    finalLeaderboard: null,
     config: {
       productive: cleanProductive,
       distracting: cleanDistracting,
       distractionIntervalSec: intervalSec,
-      maxDistractionSec: maxDistractionSec
+      maxDistractionSec: maxDistractionSec,
+      lifetimeSec: lifetimeSec
     }
   };
   db.logs[roomId] = [];
@@ -217,11 +388,56 @@ app.post('/api/rooms/verify', (req, res) => {
     });
   }
 
+  // If username provided, ensure user leaves any other room and is registered in this room
+  if (username) {
+    const usernameLower = username.trim().toLowerCase();
+    leaveUserFromRooms(username, room.id);
+
+    let userId = Object.keys(db.users).find(
+      id => db.users[id].roomId === room.id && db.users[id].username.toLowerCase() === usernameLower
+    );
+    if (!userId) {
+      userId = 'user_' + Math.random().toString(36).substr(2, 9);
+      db.users[userId] = {
+        id: userId,
+        username: username.trim(),
+        roomId: room.id,
+        productiveSec: 0,
+        distractingSec: 0,
+        untrackedSec: 0,
+        isFocused: true,
+        currentCategory: 'untracked',
+        currentUrl: '',
+        lastHeartbeat: Date.now(),
+        consecutiveDistractingSec: 0,
+        alertCountForDistraction: 0
+      };
+    }
+    if (!room.users.includes(userId)) {
+      room.users.push(userId);
+    }
+    saveDb();
+
+    // Emit live update
+    io.to(room.id).emit('room_update', {
+      id: room.id,
+      name: room.name,
+      creator: room.creator || (room.users[0] && db.users[room.users[0]]?.username) || null,
+      status: room.status || 'active',
+      endsAt: room.endsAt,
+      lifetimeSec: room.lifetimeSec,
+      config: room.config,
+      users: room.users.map(id => db.users[id]).filter(Boolean),
+      logs: db.logs[room.id] || []
+    });
+  }
+
   res.json({
     success: true,
     room: {
       id: room.id,
       name: room.name,
+      creator: room.creator || (room.users[0] && db.users[room.users[0]]?.username) || null,
       config: room.config
     }
   });
@@ -232,15 +448,171 @@ app.get('/api/rooms/:id', (req, res) => {
   const room = db.rooms[req.params.id];
   if (!room) return res.status(404).json({ error: 'Room not found' });
 
+  checkRoomExpiration(room);
+  const remainingSec = room.endsAt ? Math.max(0, Math.round((room.endsAt - Date.now()) / 1000)) : null;
+
   const roomData = {
     id: room.id,
     name: room.name,
+    creator: room.creator || (room.users[0] && db.users[room.users[0]]?.username) || null,
+    status: room.status || 'active',
+    lifetimeSec: room.lifetimeSec || null,
+    endsAt: room.endsAt || null,
+    remainingSec: remainingSec,
     config: room.config,
     users: room.users.map(userId => db.users[userId]).filter(Boolean),
-    logs: db.logs[req.params.id] || []
+    logs: db.logs[req.params.id] || [],
+    finalLeaderboard: room.finalLeaderboard || (room.status === 'ended' ? computeLeaderboard(room) : null)
   };
   res.json(roomData);
 });
+
+// END focus room early & calculate final leaderboard
+app.post('/api/rooms/:id/end', (req, res) => {
+  const room = db.rooms[req.params.id];
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+
+  room.status = 'ended';
+  room.endedAt = Date.now();
+  room.finalLeaderboard = computeLeaderboard(room);
+
+  const winnerName = room.finalLeaderboard[0]?.username;
+  const winnerProd = room.finalLeaderboard[0]?.productiveSec || 0;
+  const logEntry = {
+    id: 'log_' + Math.random().toString(36).substr(2, 9),
+    timestamp: new Date().toLocaleTimeString(),
+    username: 'System',
+    url: '',
+    category: 'productive',
+    alertType: 'session_ended',
+    message: `🏁 Focus session completed! Winner: ${winnerName || 'None'} with ${formatMaxTime(winnerProd)} productive time.`
+  };
+  if (!db.logs[room.id]) db.logs[room.id] = [];
+  db.logs[room.id].unshift(logEntry);
+
+  saveDb();
+
+  io.to(room.id).emit('room_ended', {
+    roomId: room.id,
+    roomName: room.name,
+    finalLeaderboard: room.finalLeaderboard
+  });
+
+  const roomData = {
+    id: room.id,
+    name: room.name,
+    status: room.status,
+    endsAt: room.endsAt,
+    lifetimeSec: room.lifetimeSec,
+    remainingSec: 0,
+    config: room.config,
+    users: room.users.map(id => db.users[id]).filter(Boolean),
+    logs: db.logs[room.id] || [],
+    finalLeaderboard: room.finalLeaderboard
+  };
+  io.to(room.id).emit('room_update', roomData);
+  io.emit('rooms_list_update');
+
+  res.json({ success: true, finalLeaderboard: room.finalLeaderboard });
+});
+
+// UPDATE room settings (Creator only)
+const updateRoomSettingsHandler = (req, res) => {
+  const roomId = req.params.id;
+  const room = db.rooms[roomId];
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+
+  const body = req.body || {};
+  const requester = (body.username || body.requester || body.user || '').trim().toLowerCase();
+  const roomCreator = (room.creator || (room.users[0] && db.users[room.users[0]]?.username) || '').trim().toLowerCase();
+  const password = body.password ? String(body.password).trim() : '';
+
+  // Verification: only creator can edit settings (or verified by room password)
+  const isAuthorized = (roomCreator && requester === roomCreator) || (password && room.password === password);
+  if (!isAuthorized) {
+    return res.status(403).json({ error: 'Only the room creator can edit room settings.' });
+  }
+
+  // 1. Update room name if provided
+  if (body.name && String(body.name).trim()) {
+    room.name = String(body.name).trim();
+  }
+
+  // 2. Update config (support both nested body.config and flat body properties)
+  const productiveList = body.productive !== undefined ? body.productive : body.config?.productive;
+  const distractingList = body.distracting !== undefined ? body.distracting : body.config?.distracting;
+  const alertInterval = body.distractionIntervalSec !== undefined ? body.distractionIntervalSec : body.config?.distractionIntervalSec;
+  const maxDist = body.maxDistractionSec !== undefined ? body.maxDistractionSec : body.config?.maxDistractionSec;
+  const lifetime = body.lifetimeSec !== undefined ? body.lifetimeSec : body.config?.lifetimeSec;
+
+  if (Array.isArray(productiveList)) {
+    room.config.productive = productiveList
+      .map(p => (typeof p === 'string' ? p : p.url || '').trim())
+      .filter(Boolean);
+  }
+  if (Array.isArray(distractingList)) {
+    room.config.distracting = distractingList
+      .map(d => (typeof d === 'string' ? d : d.url || '').trim())
+      .filter(Boolean);
+  }
+  if (alertInterval !== undefined) {
+    const intervalSec = Number(alertInterval);
+    if (intervalSec > 0) room.config.distractionIntervalSec = intervalSec;
+  }
+  if (maxDist !== undefined) {
+    const maxSec = Number(maxDist);
+    room.config.maxDistractionSec = maxSec > 0 ? maxSec : null;
+  }
+  if (lifetime !== undefined) {
+    const lifeSec = Number(lifetime);
+    if (lifeSec > 0) {
+      room.config.lifetimeSec = lifeSec;
+      room.lifetimeSec = lifeSec;
+      const baseTime = room.createdAt ? new Date(room.createdAt).getTime() : Date.now();
+      room.endsAt = baseTime + lifeSec * 1000;
+      if (room.status === 'ended' && room.endsAt > Date.now()) {
+        room.status = 'active';
+        room.finalLeaderboard = null;
+      }
+    } else {
+      room.config.lifetimeSec = null;
+      room.lifetimeSec = null;
+      room.endsAt = null;
+      if (room.status === 'ended') {
+        room.status = 'active';
+        room.finalLeaderboard = null;
+      }
+    }
+  }
+
+  saveDb();
+
+  checkRoomExpiration(room);
+  const remainingSec = room.endsAt ? Math.max(0, Math.round((room.endsAt - Date.now()) / 1000)) : null;
+  const roomData = {
+    id: room.id,
+    name: room.name,
+    creator: room.creator || (room.users[0] && db.users[room.users[0]]?.username) || null,
+    status: room.status || 'active',
+    lifetimeSec: room.lifetimeSec || null,
+    endsAt: room.endsAt || null,
+    remainingSec: remainingSec,
+    config: room.config,
+    users: room.users.map(userId => db.users[userId]).filter(Boolean),
+    logs: db.logs[roomId] || [],
+    finalLeaderboard: room.finalLeaderboard || (room.status === 'ended' ? computeLeaderboard(room) : null)
+  };
+
+  io.to(roomId).emit('room_update', roomData);
+  io.to(roomId).emit('config_update', room.config);
+  io.emit('rooms_list_update');
+
+  console.log(`[Room Settings] Creator "${requester}" updated settings for room "${room.name}" (${room.id})`);
+  res.json({ success: true, room: roomData });
+};
+
+app.put('/api/rooms/:id/settings', updateRoomSettingsHandler);
+app.post('/api/rooms/:id/settings', updateRoomSettingsHandler);
 
 // DELETE room (Requires room password)
 app.delete('/api/rooms/:id', (req, res) => {
@@ -272,7 +644,7 @@ app.delete('/api/rooms/:id', (req, res) => {
   res.json({ success: true, message: 'Room deleted successfully' });
 });
 
-// ─── ACTIVITY & TIME TRACKING (from Chrome Extension Heartbeat) ───────────────
+// --- ACTIVITY & TIME TRACKING (from Chrome Extension Heartbeat) ---------------
 
 app.post('/api/activity', (req, res) => {
   const { roomId, password, username, url, elapsedSec } = req.body;
@@ -281,14 +653,55 @@ app.post('/api/activity', (req, res) => {
     return res.status(400).json({ error: 'Missing required parameters' });
   }
 
+  const usernameLower = username.trim().toLowerCase();
+
   let room = findRoom(roomId) || findRoom(password);
+
+  // Auto-resolve room if provided identifier is missing/stale/deleted
+  if (!room) {
+    // 1. Check if user is in an active room in db
+    room = Object.values(db.rooms).find(r =>
+      r.status !== 'ended' &&
+      Array.isArray(r.users) &&
+      r.users.some(uid => db.users[uid]?.username?.toLowerCase() === usernameLower)
+    );
+    // 2. Fallback: check most recent joined room in history
+    if (!room && db.history[usernameLower]) {
+      const lastEntry = db.history[usernameLower].slice(-1)[0];
+      if (lastEntry && !lastEntry.leftAt && db.rooms[lastEntry.roomId] && db.rooms[lastEntry.roomId].status !== 'ended') {
+        room = db.rooms[lastEntry.roomId];
+      }
+    }
+    // 3. Fallback: if only one active room exists on the server
+    if (!room) {
+      const activeRooms = Object.values(db.rooms).filter(r => r.status !== 'ended');
+      if (activeRooms.length === 1) {
+        room = activeRooms[0];
+      }
+    }
+
+    if (room) {
+      console.log(`[Activity] Auto-resolved active room "${room.name}" (${room.id}) for user "${username}"`);
+    }
+  }
+
   if (!room) {
     console.warn(`[Activity] Room not found for identifier: "${roomId || password}" from user: "${username}"`);
     return res.status(404).json({ error: 'Room not found' });
   }
 
   const currentRoomId = room.id;
-  const usernameLower = username.trim().toLowerCase();
+
+  // Check if room lifetime has expired
+  checkRoomExpiration(room);
+  if (room.status === 'ended') {
+    return res.json({
+      success: true,
+      roomEnded: true,
+      message: 'This focus room session has ended.',
+      finalLeaderboard: room.finalLeaderboard || computeLeaderboard(room)
+    });
+  }
 
   // Check if user is permanently banned
   if (room.bannedUsers && room.bannedUsers.includes(usernameLower)) {
@@ -362,7 +775,7 @@ app.post('/api/activity', (req, res) => {
     console.log(`[Activity] 👤 ${user.username} | 🚫 DISTRACTING (+${deltaSec}s) | Total: ${user.distractingSec}s | URL: ${url.substring(0, 50)}`);
 
 
-    // ── Check total distraction limit → KICK & BAN ──
+    // -- Check total distraction limit → KICK & BAN --
     if (maxDistractionSec && user.distractingSec >= maxDistractionSec) {
       kickedOut = true;
       kickMessage = `You spent more than ${formatMaxTime(maxDistractionSec)} on distracting sites and have been permanently removed from the room.`;
@@ -421,7 +834,7 @@ app.post('/api/activity', (req, res) => {
       }
     }
 
-    // ── 80% warning before kick ──
+    // -- 80% warning before kick --
     if (maxDistractionSec && !shouldTriggerAlert) {
       const warningThreshold = maxDistractionSec * 0.8;
       if (user.distractingSec >= warningThreshold && (user.distractingSec - deltaSec) < warningThreshold) {
@@ -456,9 +869,15 @@ app.post('/api/activity', (req, res) => {
   }
 
   // Broadcast update to room
+  const remainingSec = room.endsAt ? Math.max(0, Math.round((room.endsAt - Date.now()) / 1000)) : null;
   const roomData = {
     id: room.id,
     name: room.name,
+    status: room.status || 'active',
+    endsAt: room.endsAt || null,
+    lifetimeSec: room.lifetimeSec || null,
+    remainingSec: remainingSec,
+    finalLeaderboard: room.finalLeaderboard || (room.status === 'ended' ? computeLeaderboard(room) : null),
     config: room.config,
     users: room.users.map(id => db.users[id]).filter(Boolean),
     logs: db.logs[currentRoomId]
@@ -479,6 +898,8 @@ app.post('/api/activity', (req, res) => {
 
   res.json({
     success: true,
+    activeRoomId: room.id,
+    roomName: room.name,
     user: {
       username: user.username,
       category: user.currentCategory,
@@ -496,7 +917,7 @@ app.post('/api/activity', (req, res) => {
   });
 });
 
-// ─── SOCKET.IO ────────────────────────────────────────────────────────────────
+// --- SOCKET.IO ----------------------------------------------------------------
 
 io.on('connection', (socket) => {
   socket.on('join_room', (data) => {
@@ -510,6 +931,11 @@ io.on('connection', (socket) => {
 
     const currentRoomId = room.id;
     const usernameLower = (username || '').trim().toLowerCase();
+
+    // Enforce single-room policy: leave any existing rooms first!
+    if (username) {
+      leaveUserFromRooms(username, currentRoomId);
+    }
 
     // Check if user is permanently banned
     if (room.bannedUsers && room.bannedUsers.includes(usernameLower)) {
@@ -552,20 +978,209 @@ io.on('connection', (socket) => {
     socket.roomId = currentRoomId;
     socket.username = username.trim();
 
+    // ---- History tracking ----
+    const uname = username.trim().toLowerCase();
+    db.history[uname] = db.history[uname] || [];
+    const historyEntry = { roomId: currentRoomId, joinedAt: Date.now(), leftAt: null };
+    db.history[uname].push(historyEntry);
+    socket.historyEntry = historyEntry;
+
+    checkRoomExpiration(room);
+    const remainingSec = room.endsAt ? Math.max(0, Math.round((room.endsAt - Date.now()) / 1000)) : null;
     const roomData = {
       id: room.id,
       name: room.name,
+      creator: room.creator || (room.users[0] && db.users[room.users[0]]?.username) || null,
+      status: room.status || 'active',
+      endsAt: room.endsAt || null,
+      lifetimeSec: room.lifetimeSec || null,
+      remainingSec: remainingSec,
+      finalLeaderboard: room.finalLeaderboard || (room.status === 'ended' ? computeLeaderboard(room) : null),
       config: room.config,
       users: room.users.map(id => db.users[id]).filter(Boolean),
       logs: db.logs[currentRoomId] || []
     };
     io.to(currentRoomId).emit('room_update', roomData);
+    io.emit('rooms_list_update');
     socket.emit('config_update', room.config);
+  });
+
+  socket.on('leave_room', (data) => {
+    const { username, roomId } = data || {};
+    const uname = username || socket.username;
+    if (uname) {
+      leaveUserFromRooms(uname, null);
+    }
+    if (socket.roomId) {
+      socket.leave(socket.roomId);
+      socket.roomId = null;
+    }
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+    // Update history leftAt if we have a stored entry
+    if (socket.historyEntry) {
+      socket.historyEntry.leftAt = Date.now();
+      saveDb();
+    }
+    io.emit('rooms_list_update');
   });
+});
+
+// Explicit Leave Room Endpoint
+app.post('/api/rooms/leave', (req, res) => {
+  const { username, roomId } = req.body || {};
+  if (username) {
+    leaveUserFromRooms(username, null);
+  }
+  res.json({ success: true, message: 'Left room successfully' });
+});
+
+// GET user history
+app.get('/api/history/:username', (req, res) => {
+  const uname = (req.params.username || '').trim().toLowerCase();
+  const hist = db.history[uname] || [];
+  res.json({ username: uname, history: hist });
+});
+
+// GET user's current active room (for Chrome Extension auto-sync)
+app.get('/api/users/:username/active-room', (req, res) => {
+  const usernameLower = (req.params.username || '').trim().toLowerCase();
+  let room = Object.values(db.rooms).find(r =>
+    r.status !== 'ended' &&
+    Array.isArray(r.users) &&
+    r.users.some(uid => db.users[uid]?.username?.toLowerCase() === usernameLower)
+  );
+
+  if (!room && db.history[usernameLower]) {
+    const lastEntry = db.history[usernameLower].slice(-1)[0];
+    if (lastEntry && !lastEntry.leftAt && db.rooms[lastEntry.roomId] && db.rooms[lastEntry.roomId].status !== 'ended') {
+      room = db.rooms[lastEntry.roomId];
+    }
+  }
+
+  if (!room) {
+    const activeRooms = Object.values(db.rooms).filter(r => r.status !== 'ended');
+    if (activeRooms.length === 1) {
+      room = activeRooms[0];
+    }
+  }
+
+  if (room) {
+    return res.json({
+      success: true,
+      roomId: room.id,
+      roomName: room.name,
+      roomPassword: room.password,
+      config: room.config
+    });
+  }
+  res.json({ success: false, roomId: null });
+});
+
+// -- Auth: Register --
+app.post('/api/register', async (req, res) => {
+  const { username, email, password } = req.body;
+  if (!username || !email || !password)
+    return res.status(400).json({ error: 'Username, email and password are required.' });
+
+  const emailKey = email.trim().toLowerCase();
+  const userKey = username.trim().toLowerCase();
+
+  // Check duplicates
+  const accounts = Object.values(db.accounts);
+  if (accounts.find(a => a.email === emailKey))
+    return res.status(409).json({ error: 'An account with that email already exists.' });
+  if (accounts.find(a => a.username.toLowerCase() === userKey))
+    return res.status(409).json({ error: 'That username is already taken.' });
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  const id = 'acc_' + crypto.randomBytes(6).toString('hex');
+  db.accounts[id] = { id, username: username.trim(), email: emailKey, passwordHash, createdAt: Date.now() };
+  saveDb();
+  res.json({ ok: true, username: username.trim(), email: emailKey });
+});
+
+// -- Auth: Login --
+app.post('/api/login', async (req, res) => {
+  const { identifier, password } = req.body; // identifier = email or username
+  if (!identifier || !password)
+    return res.status(400).json({ error: 'Identifier and password are required.' });
+
+  const key = identifier.trim().toLowerCase();
+  const account = Object.values(db.accounts).find(
+    a => a.email === key || a.username.toLowerCase() === key
+  );
+  if (!account)
+    return res.status(401).json({ error: 'No account found with that email or username.' });
+
+  const ok = await bcrypt.compare(password, account.passwordHash);
+  if (!ok)
+    return res.status(401).json({ error: 'Incorrect password.' });
+
+  res.json({ ok: true, username: account.username, email: account.email });
+});
+
+// -- Auth: Forgot Password - send OTP --
+app.post('/api/forgot', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required.' });
+
+  const emailKey = email.trim().toLowerCase();
+  const account = Object.values(db.accounts).find(a => a.email === emailKey);
+  if (!account)
+    return res.status(404).json({ error: 'No account with that email.' });
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+  db.otps[emailKey] = { code, expiresAt: Date.now() + 10 * 60 * 1000 }; // 10 min
+
+  // NOTE: Replace these Gmail credentials with real ones or use a service like Mailtrap for testing
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.MAIL_USER || 'your-email@gmail.com',
+      pass: process.env.MAIL_PASS || 'your-app-password',
+    },
+  });
+
+  try {
+    await transporter.sendMail({
+      from: `"Zero-Trust Focus" <${process.env.MAIL_USER || 'your-email@gmail.com'}>`,
+      to: account.email,
+      subject: 'Your Password Reset OTP',
+      html: `<h2>Zero-Trust Focus - Password Reset</h2>
+             <p>Your one-time code is: <strong style="font-size:2em;letter-spacing:4px">${code}</strong></p>
+             <p>It expires in 10 minutes.</p>`,
+    });
+    res.json({ ok: true, message: 'OTP sent to your email.' });
+  } catch (err) {
+    console.error('[OTP] Failed to send email:', err.message);
+    // Still respond with the code in dev mode so you can test without real email
+    res.json({ ok: true, message: `[DEV] OTP is ${code} (email send failed - configure MAIL_USER/MAIL_PASS env vars)` });
+  }
+});
+
+// -- Auth: Verify OTP + Reset Password --
+app.post('/api/verify-otp', async (req, res) => {
+  const { email, code, newPassword } = req.body;
+  if (!email || !code || !newPassword)
+    return res.status(400).json({ error: 'email, code and newPassword are required.' });
+
+  const emailKey = email.trim().toLowerCase();
+  const record = db.otps[emailKey];
+  if (!record || record.code !== code)
+    return res.status(400).json({ error: 'Invalid OTP.' });
+  if (Date.now() > record.expiresAt)
+    return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
+
+  const account = Object.values(db.accounts).find(a => a.email === emailKey);
+  if (!account) return res.status(404).json({ error: 'Account not found.' });
+
+  account.passwordHash = await bcrypt.hash(newPassword, 10);
+  delete db.otps[emailKey];
+  saveDb();
+  res.json({ ok: true, message: 'Password reset successfully. You can now log in.' });
 });
 
 const PORT = process.env.PORT || 4000;
